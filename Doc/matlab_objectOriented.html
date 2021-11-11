@@ -1,0 +1,2391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd"><head>
+
+
+   
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Object Oriented Programming in Matlab</title>
+      <meta name="generator" content="MATLAB 7.6">
+      <meta name="date" content="2008-09-14">
+      <meta name="m-file" content="objectOriented"><style>
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style><meta http-equiv="PRAGMA" content="NO-CACHE"></head><body>
+      <div class="content">
+         <h1>Object Oriented Programming in Matlab</h1>
+         <introduction>
+            <p>One
+of Matlab's best kept secrets is its comprehensive support for Object
+Oriented Programming, (OOP). Entire courses in computer science are
+devoted to extolling OOPs many virtues and we will not have space to
+mention them all here. Instead, we focus on the specifics of OOP in
+Matlab and provide enough detail to start using objects in your own
+programs and writing your own classes. </p>
+         </introduction>
+         <h2>Contents</h2>
+         <div>
+            <ul>
+               <li><a href="#4">Old vs New Syntax</a></li>
+               <li><a href="#6">Relation to Structs</a></li>
+               <li><a href="#13">Defining a Class</a></li>
+               <li><a href="#26">Properties</a></li>
+               <li><a href="#42">Methods</a></li>
+               <li><a href="#48">Private Methods</a></li>
+               <li><a href="#54">Static Methods</a></li>
+               <li><a href="#63">External Functions &amp; Methods</a></li>
+               <li><a href="#65">Dynamic Dispatch</a></li>
+               <li><a href="#71">Set and Get</a></li>
+               <li><a href="#79">Inheritance</a></li>
+               <li><a href="#82">Calling a Superclass Method</a></li>
+               <li><a href="#84">Class Aliases</a></li>
+               <li><a href="#87">Sealed Classes, Methods &amp; Properties</a></li>
+               <li><a href="#90">Abstract Methods &amp; Properties</a></li>
+               <li><a href="#95">Handle Superclass</a></li>
+               <li><a href="#109">dynamicprops &amp; hgsetget</a></li>
+               <li><a href="#111">Operator Overloading</a></li>
+               <li><a href="#126">Object Arrays</a></li>
+               <li><a href="#131">Events</a></li>
+               <li><a href="#154">Meta Classes</a></li>
+               <li><a href="#163">Packages</a></li>
+               <li><a href="#171">Example</a></li>
+               <li><a href="#174">Writing Classes Prior to Version 2008a</a></li>
+               <li><a href="#177">(&lt;2008a) Defining a Class</a></li>
+               <li><a href="#189">(&lt;2008a) Property Access</a></li>
+               <li><a href="#191">(&lt;2008a) Subsref &amp; Subsasgn</a></li>
+               <li><a href="#199">(&lt;2008a) Displaying Objects</a></li>
+               <li><a href="#202">(&lt;2008a) Methods</a></li>
+               <li><a href="#214">(&lt;2008a) Private Methods</a></li>
+               <li><a href="#216">(&lt;2008a) Inheritance Syntax</a></li>
+               <li><a href="#221">(&lt;2008a) Dynamic Dispatch</a></li>
+            </ul>
+         </div>
+         <p>We make extensive reference to the online Matlab OO documentation available here: <a href="http://www.mathworks.com/access/helpdesk/help/pdf_doc/matlab/matlab_oop.pdf">http://www.mathworks.com/access/helpdesk/help/pdf_doc/matlab/matlab_oop.pdf</a></p>
+         <p>  </p>
+         <p> <a name="OldVsNewSyntax"></a> </p>
+         <h2>Old vs New Syntax<a name="4"></a></h2>
+         <p>Mathworks
+recently, (as of version 2008a) introduced an entirely new Object
+Oriented, (OO), framework and syntax, however, the old style is still
+supported. This tutorial discusses both in some depth. Topics relating
+only to the old style are tagged (&lt;2008a) and are listed in the
+bottom third of the document. They can be safely skipped by anyone
+solely interested in the new design. </p>
+         <p>The converse is not necessarily true,
+although for the most part the sections on the old style are self
+contained. We suggest that the reader interested only in the old style,
+nevertheless, read the following sections in the top two-thirds of the
+tutorial: <i>Relation to Structs</i> , <i>Dynamic Dispatch</i> , <i>Operator Overloading</i> ,  <i>Object Arrays</i> , <i>Object-Object Interaction</i> ,&amp; <i>Inheritance</i>.
+         </p>
+         <p> <a name="RelationToStructs"></a> </p>
+         <h2>Relation to Structs<a name="6"></a></h2>
+         <p>Objects
+in Matlab are similar to structs, discussed earlier, in that both allow
+you to consolidate and encapsulate your data. It will be useful to
+remember this similarity as we progress, and if you are not yet
+familiar with structs, you may find it useful to return to that section
+first. </p>
+         <p>Recall that structs are created by specifying field names and data to be stored in these fields. Objects also have fields
+            that store data, called <b>properties</b>,
+which operate in a very similar way. However, unlike structs, we must
+predefine what properties we want an entire class of objects to have,
+and we do so by writing a class definition. While objects of the same
+class will have the same set of properties, the values of these
+properties will differ just as two different structs might have the
+same field names and yet store different data. </p>
+         <p>So far we could imagine achieving the same effect by creating, say, an array of structs all with the same fields.  However,
+            there are further differences.
+         </p>
+         <p>Objects, unlike structs, also encapsulate the operations we want to perform on the data, called <b>methods</b>.
+         </p>
+         <p>Suppose
+for instance that we want to use and manipulate calendar dates in our
+program. We could create structs with minute, hour, day, month, and
+year fields and store all of the information about specific dates and
+times in these. This would certainly be better than having separate
+variables for all of these values floating around <i>unstructured</i>.
+However, there are also a number of operations we we might want to
+perform on these dates, such as incrementing them by a day, comparing
+them, subtracting them, etc. We could write stand alone functions to
+perform all of these operations, but it would be nice to organize them
+together too, just as we did the data. This is precisely what an object
+oriented approach lets us do. </p>
+         <p>There are further differences and advantages, which we will come to in due course. We first describe how to write a class
+            definition.
+         </p>
+         <p> <a name="DefiningAclass"></a> </p>
+         <h2>Defining a Class<a name="13"></a></h2>
+         <p>If
+you are new to OOP, make sure you mark the distinction between classes
+and instances of that class, called objects. This distinction will
+hopefully become clearer as we see more examples. In the class
+definition, we create a kind of prototype, or specification for the
+construction of a objects of a certain <i>class</i> or <i>type</i>. From one class definition, we create many instances.
+         </p>
+         <p>To begin, create a new m-file with the same name as the class you want to create and start the file with the <b>classdef</b> keyword followed by the class name. Properties and methods are defined and written below this line in designated blocks as
+            shown below. We must include a special method, called the <b>constructor</b> , which is responsible for <i>constructing</i>
+new objects and it must have the same name as the class. The
+constructor can take any number of arguments specifying initial values
+for the properties for instance, and must return one argument, the
+constructed object. Properties can optionally be assigned default
+values as with the minute property below. If no default is specified
+and no value is assigned by the constructor, they are assigned the
+empty matrix, []. </p>
+         <p> </p><hr> <pre>   classdef date
+   % write a description of the class here.</pre><pre>       properties
+       % define the properties of the class here, (like fields of a struct)
+           minute = 0;
+           hour;
+           day;
+           month;
+           year;
+       end</pre><pre>       methods
+       % methods, including the constructor are defined in this block</pre><pre>           function obj = date(minute,hour,day,month,year)
+           % class constructor
+               if(nargin &gt; 0)
+                 obj.minute = minute;
+                 obj.hour   = hour;
+                 obj.day    = day;
+                 obj.month  = month;
+                 obj.year   = year;
+               end
+           end</pre><pre>           function obj = rollDay(obj,numdays)</pre><pre>               obj.day = obj.day + numdays;
+           end</pre><pre>       end
+   end</pre><p> </p><hr> 
+         <p>Our date constructor, could have been as simple as the following.</p><pre> function obj = date()
+       obj;
+ end</pre><p>Matlab does all of the real work of creating the object, we just have to ensure that we write a constructor by the right name
+            and perform any desired initialization, returning a declared variable.
+         </p>
+         <p>Now that we have written the class, we can create date objects by simply calling the constructor.</p><pre class="codeinput">d1 = date(0,3,27,2,1998);                    <span class="comment">% Create a new date object</span>
+</pre><p>It is usually good practice to write a constructor so we can optionally create objects without having to specify any parameters.
+            As we have written the date class, we could create a date object like this as well:
+         </p><pre class="codeinput">d2 = date();                                 <span class="comment">% create a new date object</span>
+</pre><p>However, none of the properties, (except for minute) will be set. (They will all be equal to []).</p>
+         <h2>Properties<a name="26"></a></h2>
+         <p>The properties defined above are, in java lingo, <i>public</i>, that is, accessible from outside the class just like fields of a struct. We can access and assign them using dot notation.
+         </p><pre class="codeinput">day = d1.day;                                 <span class="comment">% access the day property</span>
+d1.year = 2008;                               <span class="comment">% set the year property</span>
+</pre><p>It is usually a good idea, however, to restrict direct access
+to properties to maintain a separation between implementation and
+interface. That is, we want clients to be able to use our class without
+having to know about the details of implementation and we will want the
+freedom to change how we store properties, for instance, without
+affecting clients already using our class. Perhaps at a later point,
+for example, we want the freedom to only calculate the value of a
+property when the user asks for it, (so called lazy evaluation).
+Without a level of indirection, this would not be possible. The idea is
+then to provide access to properties but only through methods. We will
+discuss such methods, so called getters and setters shortly. </p>
+         <p>Matlab offers quite a lot of control over property access. There are three levels, <b>private</b> , <b>protected</b> , and <b>public</b>
+and these apply separately to read and write access. Private properties
+are only accessible from methods of the class, and public properties,
+(the default) are accessible anywhere. Protected properties are private
+properties that are also accessible from subclasses. We will discuss
+subclasses and Inheritance later in this tutorial. </p>
+         <p>To mark a group of properties as say
+private, we modify the attributes of a property block. We saw one such
+property block above, however, we can create as many as we like all
+with different access rights so that some properties can be public and
+others private for example. We specify these access rights by assigning
+the GetAccess and SetAccess attributes the strings 'public', 'private',
+or 'protected' as in the examples below. </p>
+         <p> </p><hr> <pre>   properties(GetAccess = 'public', SetAccess = 'private')
+       % public read access, but private write access.
+   end</pre><pre>   properties(GetAccess = 'private', SetAccess = 'private')
+       % private read and write access
+   end</pre><p> </p><hr> 
+         <p>There are other property attributes we can assign although they are rarely of use with the exception of 'Constant' and perhaps
+            'Hidden'. We can specify that a block of properties are constant and thus cannot be changed anywhere as follows:
+         </p>
+         <p> </p><hr> <pre>   properties(Constant = true)
+       DAYS_PER_YEAR =  365;
+       MONTHS_PER_YEAR = 12;
+       WEEKS_PER_YEAR  = 52;
+   end</pre><p> </p><hr> 
+         <p>Hidden
+properties do not show up when displaying the object. For information
+on additional attributes see section 6.7 of the Mathworks OO
+documentation. Method attributes, which we discuss shortly, are listed
+in section 7.4 and class attributes in section 3.5. </p>
+         <p>We can view all of the (non-hidden) properties of a class using the <i>properties()</i> command.
+         </p><pre class="codeinput">properties(date)
+</pre><pre class="codeoutput">Properties for class date:
+    minute
+    hour
+    day
+    month
+    year
+    numsecs
+    valid
+    DAYS_PER_YEAR
+    MONTHS_PER_YEAR
+    WEEKS_PER_YEAR
+</pre><p> <a name="Methods"></a> </p>
+         <h2>Methods<a name="42"></a></h2>
+         <p>Methods
+in OOP, as we mentioned, are functions, defined in a class, that
+operate specifically on objects of that class, (although they can
+certainly take objects of other classes as additional arguments).
+Observe the simple function, <i>rollDay()</i>
+, which we have already defined. This method adds a specified number of
+days to the day property. Notice that the first argument of the
+function definition is an object of the containing class. </p>
+         <p>There are two equivalent ways of calling methods, both shown here.</p><pre>d1 = rollDay(d,3);
+d1 = d.rollDay(3);</pre><p>The
+second option is probably more familiar to java and C++ programmers. It
+is essentially translated into the first by placing the implicit
+parameter, (the object d) as the first input into rollDay. Note, the
+method takes 2 parameters in both cases, (i.e. <i>nargin()</i> will return 2 in each). There is
+really no particular reason to choose one over the other except perhaps
+that the second makes it clearer that the function is actually a method
+applied to object d. Pick one style and be consistent throughout your
+program. </p>
+         <p>We must take care to return the object when we modify any properties. Objects in Matlab are by default, passed by <b>value</b> not by <b>reference</b>,
+which means that a full copy of the object is passed to methods and it
+is this copy that is modified. If we do not pass back this copy,
+effectively overwriting the original, we will not observe any change in
+the state. We can optionally write classes whose objects are passed by
+reference, which we discuss in the <i>Handle Superclass</i> section. This point also applies to calls like <b>d3 = d2</b>. If d2 is the date object we created above, d3 will be an identical copy.
+         </p>
+         <p> <a name="PrivateMethods"></a> </p>
+         <h2>Private Methods<a name="48"></a></h2>
+         <p>Methods,
+just like properties, can be private, protected, or public, (the
+default). Private methods are helper functions that are not intended to
+be part of the class interface or to be used outside the of the class
+methods. It is often useful, for instance, to break public methods down
+into a series of calls to private methods, (so call functional
+decomposition). Protected methods, like protected properties, are
+private except also accessible by subclasses. </p>
+         <p>We define access to a block of methods, by assigning the string 'private', 'protected', or 'public', to the Access attribute
+            of the methods block. We are free to create as many methods blocks as we like each with different access attributes.
+         </p>
+         <p> </p><hr> <pre> methods(Access = private)
+    function sec = calcSecs(obj)
+      sec = obj.minute*60 + obj.hour*60*60 + obj.day*24*60*60;
+    end</pre><pre>    function TF = isValid(obj)
+        TF = obj.minute &gt;= 0 &amp;&amp; obj.minute &lt;= 60;
+    end
+ end</pre><p> </p><hr> 
+         <p> <a name="StaticMethods"></a> </p>
+         <h2>Static Methods<a name="54"></a></h2>
+         <p>Static methods are methods that are associated with a class as opposed to instances of that class and are defined, as you
+            would expect, in a method block that looks like this:
+         </p>
+         <p> </p><hr> <pre> methods(Static = true)
+     function printCurrentDate()
+         display(datestr(now));
+     end
+ end</pre><p> </p><hr> 
+         <p>They are useful when you have methods are are thematically related to the class but which do not use any information particular
+            to specific instances of that class. Methods that demo class functionality are also good candidates.
+         </p>
+         <p>To call a static method, you specify the classname, followed by a dot and the static method name.</p><pre class="codeinput">  date.printCurrentDate()
+</pre><pre class="codeoutput">14-Sep-2008 22:22:33
+</pre><p>Methods can also be hidden with <i>methods(Hidden = true)</i> hiding them from functions that display class methods such as <i>methods()</i> or <i>methodsview()</i> . We will discuss abstract and sealed methods after first introducing inheritance.
+         </p>
+         <p> <a name="ExternalFunctionsAndMethods"></a> </p>
+         <h2>External Functions &amp; Methods<a name="63"></a></h2>
+         <p>Our
+class methods are free to call out to any external function on the
+Matlab path to perform interim calculations. Moreover, if we save our
+classdef m-file in a directory with the same name as the class but
+preceded by the @ symbol,(e.g. @date), we can write methods in their
+own files, store them here, and use them as we would any other method.
+The declaration looks just like the function declarations above and the
+file name is the same as the function name. </p>
+         <p>However, we cannot assign such methods any of the method attributes just discussed, (like static, hidden, or protected), they
+            are automatically public.
+         </p>
+         <p>To write external private methods, save them into a subdirectory called private, e.g. \@date\private\myMethod.m.</p>
+         <p> <a name="DynamicDispatch"></a> </p>
+         <h2>Dynamic Dispatch<a name="65"></a></h2>
+         <p>An advantage of OOP is that we can create two different classes each with the same method names and Matlab will automatically
+            call the correct method depending on the type of of the object passed. For example, a call like <b>obj = increment(obj)</b> will call the increment method from whatever class obj happens to belong, even if multiple classes have an increment method.
+         </p>
+         <p>When multiple objects are passed to a method, Matlab determines which class's method to call based on the <i>superior-inferior</i> relation. The most superior class's method is invoked and if all of the classes have equal superiority, the left most object
+            takes precedence.
+         </p>
+         <p>We specify these relationships when creating classes, right in the classdef statements as follows:</p>
+         <p><b>classdef(InferiorClasses = {?class1, ?class2})</b></p>
+         <p>The ? marks are used to construct metaclass instances but this detail is not particularly important; class1 and class2 are
+            instances of the inferior classes. We discuss meta classes in a later section.
+         </p>
+         <p>Arrays of objects can be passed to methods as well but the class of an array of objects is the same as the class of the objects
+            stored inside, (which must all be the same), and this class is used to determine precedence. See the section on <i>Object Arrays</i> for more information.
+         </p>
+         <p> <a name="SetAndGet"></a> </p>
+         <h2>Set and Get<a name="71"></a></h2>
+         <p>Matlab
+supports special kinds of setter and getter functions for assigning and
+accessing properties that are executed whenever an attempt to set or
+get the corresponding property is made. Use of these is optional; they
+are only called if they exist. By taking this approach, we can make
+properties public so that clients can use the convenient dot notation,
+while still maintaining a level of indirection by effectively
+intercepting the call. </p>
+         <p>We will add get and set methods for the public day property of the date class as an example. We write <i>get</i> followed by a dot and the property name, similarly for <i>set</i> .
+         </p>
+         <p> </p><hr> <pre> function day = get.day(obj)
+     day = obj.day;              % We could execute other code as well.
+ end</pre><pre> function obj = set.day(obj,newday)
+     obj.day = newday;
+ end</pre><p> </p><hr> 
+         <p>We
+then assign and query the value as we did before using the dot
+notation, but the call is intercepted by these functions. We must take
+care as before to return the object in the setter methods, (as the
+objects are by default passed by value). </p><pre class="codeinput">day = d1.day;
+d1.day = 5;
+</pre><p>Unfortunately, as of Matlab version 2008a, it was not possible
+to override get and set methods in subclasses, severely limiting the
+use value of this approach in complex projects. Furthermore, these
+methods are called even when properties are accessed or set from within
+the class, making their use for input checking a frustrating exercise.
+Keep this in mind when initializing variables in the constructor; these
+functions, if present, are invoked during construction and so must be
+able to deal with cases in which the variables are not yet set. </p>
+         <p> <a name="Inheritance"></a> </p>
+         <h2>Inheritance<a name="79"></a></h2>
+         <p>When
+writing classes, we often find that some types are really special cases
+of others. For instance, integers are really special cases of numbers
+in general. This is different than the class-object relation, such as
+the number 3 being a specific instance of the integer class or the
+Earth being a specific instance of the planet class. Planets, however,
+are a subclass of say celestial bodies. </p>
+         <p>Inheritance in OOP allows us to write subclasses that <i>inherit</i> all of the properties and methods of their superclass so that we do not have to recode all of the parent functionality. The
+            subclass then extends or specializes this functionality.
+         </p>
+         <p>We can think of the methods of a subclass as the union of all of its own methods with the methods of its parent superclass,
+            and similarly for properties.
+         </p>
+         <p>Subclasses
+can redefine methods inherited from parents by simply specifying a
+method by the same name, (the number &amp; names of arguments do not
+have to be the same). The subclass version is used with objects of that
+class, while the superclass version is used with supeclass objects -
+another example of dynamic dispatch. </p>
+         <p>If you find yourself writing the same
+methods in two or more classes, consider creating an inheritance
+hierarchy in which the superclass contains the code common to all of
+the subclasses. This hierarchy can be as many levels deep as you like. </p>
+         <p>Be aware that classes written in the new syntax cannot inherit from those written in the old, and vice versa.</p>
+         <p>We can specify a superclass for a class we are writing by using the following syntax in the classdef statement of our class
+            definition.
+         </p>
+         <p><b>classdef classname &lt; superclass</b></p>
+         <p>Matlab
+supports multiple inheritance, i.e. subclasses with multiple
+superclasses. Care must be taken that naming conflicts do not occur.
+See section 5.11 of the Matlab OO documentation for details on multiple
+inheritance conflict resolution. To inherit from multiple classes,
+separate the superclasses with the &amp; symbol as in the following. </p>
+         <p><b>classdef classname &lt; super1 &amp; super2 &amp; super3</b></p>
+         <p> <a name="CallingAsuperclassMethod"></a> </p>
+         <h2>Calling a Superclass Method<a name="82"></a></h2>
+         <p>When
+a method has been redefined in a subclass, it is sometimes necessary to
+call the superclass version from the subclass. Sometimes, for example,
+you want the subclass version to do everything the superclass version
+does, and more. Rather than copy the code from the superclass, you can
+first call the superclass version and then execute further code. </p>
+         <p>To access superclass methods and properties use the @ operator as in</p>
+         <p><b>methodname@superclassname(input1,input2)</b></p>
+         <p>While
+it will not produce an error, it is not necessary to use the @ operator
+to access inherited methods or properties that have not been redefined.
+You can access them in the same way as you would a method or property
+written in the subclass. </p>
+         <p> <a name="ClassAliases"></a> </p>
+         <h2>Class Aliases<a name="84"></a></h2>
+         <p>We can create multiple names for the same class with empty classdef declarations.</p><pre>   classdef newclassname &lt; oldclassname
+   end</pre><p> <a name="SealedClassesMethodsAndProperties"></a> </p>
+         <h2>Sealed Classes, Methods &amp; Properties<a name="87"></a></h2>
+         <p>A sealed class cannot be subclassed and a sealed method or property cannot be redefined in a subclass. This is similar to
+            Java's <i>final</i> keyword. Classes are defined as sealed in the classdef statement and methods and properties are sealed by modifying the methods
+            or properties block attribute.
+         </p><pre>classdef(Sealed = true) myclass
+methods(Sealed = true)
+properties(Sealed = true</pre><p> <a name="AbstractMethodsAndProperties"></a> </p>
+         <h2>Abstract Methods &amp; Properties<a name="90"></a></h2>
+         <p>Abstract
+methods, simply put, are methods that have a function header, but not a
+function body, (i.e. no implementation). They are used to define a
+common interface for all current and future subclasses. Abstract
+methods must be implemented by subclasses and as such their inclusion
+in a superclass acts as a kind of contract, enforcing interface
+consistency. Of course, if the implementations in all of the subclasses
+are going to be the same, we are better off writing a regular method in
+the superclass, which will be inherited by all subclasses. Abstract
+methods are useful when we know subclasses need to have a particular
+method but each subclass implementation will be slightly different. </p>
+         <p>Lets suppose we have a shape superclass
+with many subclasses like sphere, cube, elipsoid, pyramid, etc. We want
+every subclass (and future subclasses other people might dream up) to
+have a calculateVolume() method. The calculation will be different in
+each case but by creating a calculateVolume() abstract method in the
+shape superclass, we can rely on the fact that each subclass will have
+such a method. We can then write other classes or functions that depend
+on this fact and do not have to rewrite any code when new shape
+subclasses are created. </p>
+         <p>Properties can also be abstract but are of less use - they too have to be defined in subclasses.</p>
+         <p>A
+class with one or more abstract methods or properties is considered
+abstract itself and instances cannot be created from it. Any subclass
+that does not implement every one of the abstract methods and
+properties of its superclasses will itself be abstract, essentially
+delegating the implementation of some or all of them to further
+subclasses. </p>
+         <p>We define a block of methods as abstract with the Abstract attribute, and when writing the methods, we do not include a body.</p>
+         <p> </p><hr> <pre>   methods(Abstract = true)
+       function vol = calculateVolume(obj,units);
+       function area = calculateSurfaceArea(obj,units);
+       function obj = doubleSize(obj);
+   end</pre><p> </p><hr> 
+         <p> <a name="HandleSuperclass"></a> </p>
+         <h2>Handle Superclass<a name="95"></a></h2>
+         <p>We
+previously mentioned that objects in Matlab are, (by default) passed by
+value, meaning that full copies are passed back and forth in method
+calls. Matlab graphics objects, however, are passed by reference, (via
+handles). If we subclass the built in <b>handle</b> class as in
+         </p>
+         <p><b>classdef myclass &lt; handle</b></p>
+         <p>then objects of our class will be passed by reference too, not value. Doing so has a number of benefits and consequences,
+            which we will now discuss.
+         </p>
+         <p>When we construct a handle object as in <b>h = myclass()</b>, h stores a pointer or handle to the object not the object itself. If we then execute <b>h2 = h</b>, we simply create another pointer to the same underlying object. For example, we could call <b>h.prop = 3</b> , and then <b>p = h2.prop</b> and p would equal 3.
+         </p>
+         <p>In handle method calls, there is no need to return the object because assignments occur <i>in place</i>, (although returning a handle to the object does no harm).
+         </p>
+         <p>If
+our objects will be very large, it can be much more space efficient to
+use handle objects because we no longer need to copy the entire object
+in every method call. (Note, however, that Matlab does a lot of
+optimization under the surface and only actually copies objects or
+variables when it absolutely has to). </p>
+         <p>Only handle classes support events; we will discuss events shortly.</p>
+         <p>The
+major advantage, however, is that it is much easier to write data
+structures, (particularly recursive structures) such link lists or
+binary trees. We give a very simple implementation of a binary tree
+class now and illustrate how we can easily recurse over all of the
+nodes by simply <i>following</i> handles.
+         </p>
+         <p> </p><hr> <pre>classdef bnode &lt; handle               % subclass handle</pre><pre>    properties
+       left;        % left  child
+       right;       % right child
+       data;        % data stored at the node
+    end</pre><pre>    methods
+        function obj = bnode(data)
+            obj;
+            if(nargin &gt; 0)
+                obj.data = data;
+            end
+        end
+    end
+end</pre><pre>function labelNodes(node,depth)
+% recursively label the depth of the nodes
+    if(isempty(node)),return,end
+    node.data = depth;
+    labelNodes(node.left,depth+1);
+    labelNodes(node.right,depth+1);
+end</pre><p> </p><hr> 
+         <p>It is much more complicated to create an identical copy of a handle object as we cannot simply go <b>h2 = h1</b>. We can use the following code, however, to create a shallow copy of any object we like. It needs full access to all of the
+            properties and so should be added as a class method. Another approach is to use the <i>struct()</i> function to convert an object to a struct and then write the constructor to optionally take a struct, building a new object
+            from its fields.
+         </p>
+         <p> </p><hr> <pre> function copy = copyobj(obj)
+ % Create a shallow copy of the calling object.
+     copy = eval(class(obj));
+     meta = eval(['?',class(obj)]);
+     for p = 1: size(meta.Properties,1)
+         pname = meta.Properties{p}.Name;
+         try
+             eval(['copy.',pname,' = obj.',pname,';']);
+         catch
+             fprintf(['\nCould not copy ',pname,'.\n']);
+         end
+     end
+ end</pre><p> </p><hr> 
+         <p>When there are no more handles to an object left on the stack, the object is declared invalid and the Matlab garbage collector
+            will free the memory when it gets a chance. We can test if a handle to an object is valid with the <i>isvalid(h)</i> method and delete the object, causing all of its handles to become invalid with <i>delete(h)</i>.
+         </p>
+         <p> <a name="dynamicpropsAndhgsetget"></a> </p>
+         <h2>dynamicprops &amp; hgsetget<a name="109"></a></h2>
+         <p>Handle has two subclasses, which you can subclass instead yielding addtional functionality. By subclassing <b>dynamicprops</b> you get all of the benefits of subclassing handle plus the ability to dynamically attach temporary data to objects without
+            modifying the class definition. You simply call the inherited <i>addprop()</i> function, as in <b>P = obj.addprop('newProperty')</b> and you can then make calls like <b>obj.newProperty = 3</b> or <b>val = obj.newProperty</b>. The return value of <i>addprop()</i> ,P, can be used to set attributes of the property, (i.e. make it hidden, etc.), or to delete the property via <b>delete(P)</b>.
+         </p>
+         <p>The <b>hgsetget</b> class, (also a subclass of handle), lets you use Matlab graphics style set and get methods as in <b>set(h,'property',value)</b>. See section 4.19 in the Matlab OO documentation for more details).
+         </p>
+         <p>You can also subclass built in types like double.</p>
+         <p> <a name="OperatorOverloading"></a> </p>
+         <h2>Operator Overloading<a name="111"></a></h2>
+         <p>Every use of a Matlab operator, such as</p><pre>+ - .* * ./ .\ / \ .^ ^ &lt; &gt; &lt;= &gt;=
+== ~ ~= &amp; | &amp;&amp; || : ' .' [] [;] () .</pre><p>is
+actually short hand or syntactic sugar for a call to a named function
+like plus(), minus(), times(), power(), lt(), eq(), not(), etc. Section
+7.32 of the Matlab OO documentation lists all of these operators with
+their corresponding function names. </p>
+         <p>We can define custom behavior for any of
+these operators by witting class methods by the same name. Since class
+methods are dynamically dispatched, our own versions of these functions
+will execute when we use the corresponding operators with our objects.
+We could write our own <i>plus()</i> method in the date class, for example, to add dates together and then call the function with <b>d1 + d2</b>. Or, we could write our own <i>lt()</i> function, (for less than) to compare dates, calling it with <b>d1 &lt; d2</b>. Such calls get converted automatically to <i>plus(d1,d2)</i> and <i>lt(d1,d2)</i>, and our own implementations of these functions are then invoked.
+         </p>
+         <p>Operators retain their natural precedence so that * takes precedence over + in order of operations, even if one or both have
+            been overloaded.
+         </p>
+         <p>Another useful method to overload is <i>display()</i> - the function that automatically displays objects when we do not suppress the output with a semicolon. Writing our own <i>display</i> function allows us to display objects in any way we like.
+         </p>
+         <p>Sometimes it is useful to simply reuse concise informative names that belong to built in functions like <i>plot()</i>.
+While plot is never automatically invoked, nor does it correspond to an
+operator, it is used so frequently in Matlab that reusing this name
+with our own objects can serve to self document their behavior
+extremely well, (assuming our plot function does something reasonable).
+</p>
+         <p>If you overload an operator or function but want to use the original implementation for some reason, use the <i>builtin()</i> function, which takes the string name of the function as the first input, followed by that function's inputs.
+         </p>
+         <p> </p><hr> 
+         <p>There
+are two very important functions that are frequently overloaded and
+deserve specific mention: subsref, and subsasgn. When the dot operator,
+parentheses, or curly braces, . () {}, are used in indexing operations,
+subsasgn is called, and when they are used in assignment operations,
+subsasgn is called. By overloading these functions, we can create
+customized behavior for our classes. </p>
+         <p>Suppose we write our own data structure class, for instance, and want calls like obj(3) to retrieve the third element in our
+            structure, we could achieve this by overloading subsref.
+         </p>
+         <p>Here are the definitions of these functions:</p><pre>  function obj = subsasgn(obj, S, value)
+  function value = subsref(obj, S)</pre><div>
+            <ul>
+               <li>obj is the calling object as in obj.prop or obj(3)</li>
+               <li>value is the new or returned value as in obj.prop = value or value = obj.prop</li>
+               <li>S is a structure with two fields: type and subs</li>
+            </ul>
+         </div><pre> Type is one of '()' '{}' or '.' depending on the call.
+ Subs is a cell array or a string of the actual subscripts used.</pre><p>In complicated calls involving multiple operators like <b>obj(5,9).prop(1:19)=value</b>, a single call to subsasgn is made and all of the information in the call is passed to the function. In this case, S is an
+            array of structs with the following values.
+         </p><pre>S(1).type='()'	S(2).type='.'	    S(3).type='()'
+S(1).subs={5,9}	S(2).subs='prop'	S(3).subs={1:10}</pre><p>Note
+that as of 2008a, overloaded operators do not work within the class
+methods, only from outside of the class, although this could, and
+hopefully will change in future versions. This includes any function
+included in the @ directory (if any) or any subdirectories. You can
+still call the functions by name, (i.e. <i>plus()</i> instead of +).
+         </p>
+         <p> <a name="ObjectArrays"></a> </p>
+         <h2>Object Arrays<a name="126"></a></h2>
+         <p>Objects of the same class can be stored together in object arrays that operate just like numeric arrays. We can concatenate
+            objects together and index into these arrays in the usual way.
+         </p><pre class="codeinput">d2 = date(1,4,22,3,2008);   <span class="comment">% create another date</span>
+dates = [d1 d2];            <span class="comment">% we can concatenate objects just like numbers</span>
+[nrows ncols] = size(dates) <span class="comment">% and use other familiar functions</span>
+d1 = dates(1,1);            <span class="comment">% retrieve the first entry</span>
+dates(1,1) = d1;            <span class="comment">% assign the first entry</span>
+</pre><pre class="codeoutput">nrows =
+     1
+ncols =
+     2
+</pre><p>The type of a single date object is actually an object array
+of date objects, albeit of size 1-by-1. Just about everything in Matlab
+is an array of some sort and objects are no exception. This is quite
+unlike java for instance, which distinguishes in terms of class,
+between an object of type A and a collection of objects of type A. One
+consequence of this is that method calls involving an array of objects
+dispatch the same method as would be were only one object involved;
+this includes calls to <i>subsref()</i> and <i>subsasgn()</i> .
+         </p>
+         <p>We can also store objects of multiple types in cells and structs.</p>
+         <p> <a name="Events"></a> </p>
+         <h2>Events<a name="131"></a></h2>
+         <p>Matlab
+now has quite good support for event based programming in which objects
+trigger events in response to a change in state, notifying one or more
+other objects that have registered as listeners. This can be
+particularly useful when the appropriate flow of control depends upon
+things external to the program such as a user's interaction with a
+graphical interface or environmental sensors. It can be a useful
+paradigm in its own right, however, particularly for simulations.
+Chapter 8 of the Mathworks OO documentation covers events. </p>
+         <p>To begin, all classes involved must
+inherit from the handle class, (or one of its subclasses). The
+triggering class must declare an events block in its class definition.
+Event blocks have attributes just like method and property blocks,
+defining event access control. </p>
+         <p>The ListenAccess attribute determines
+where you can create event listeners and NotifyAccess determines where
+events can be triggered. In the below example, we set ListenAccess to
+public so that we can register an object as a listener anywhere we
+like, and NotifyAccess to protected so that only methods of the date
+class, (or any subclasses of date) can trigger the events. </p>
+         <p>Within the block, we define the events by simply specifying a name. Here we continue with the date example and will trigger
+            events when the date is equal to either Jan 1, 2000 or the Vancouver Olympics start date of February 12, 2010.
+         </p>
+         <p> </p><hr> <pre>events(ListenAccess = 'public', NotifyAccess = 'protected')
+     y2k;                            % define a couple of events
+     olympicsStart;
+end</pre><p> </p><hr> 
+         <p>Now that we have defined two events, we have to decide when to trigger them. Lets add a line to the set.day method we discussed
+            earlier, (which is called whenever the day property is set). We will have it call a new method we will write called <i>checkDate()</i> , which will fire the events if the current date matches one we are looking for. We use the <i>notify()</i> method, (inherited from handle) to fire the event and simply pass it the name of the event we want to trigger.
+         </p>
+         <p> </p><hr> <pre>   function checkDate(obj)
+       if(isempty(obj.year) || isempty(obj.month) || isempty(obj.day))
+           return;        % this function may be called before all fields initialized.
+       end
+       if(obj.year == 2000 &amp;&amp; obj.month == 1 &amp;&amp; obj.day == 1)
+           obj.notify('y2k');
+       end
+       if(obj.year == 2010 &amp;&amp; obj.month == 2 &amp;&amp; obj.day == 12)
+           obj.notify('olympicsStart');
+       end
+   end</pre><p> </p><hr> 
+         <p>Notify
+will send an event notification to every object that is 'listening'. By
+default the event object will have the name, (as specified in the
+events block, e.g. 'y2k' or 'olympicsStart') and a handle to the source
+object itself - the object that triggered the event. </p>
+         <p>You can create customized event objects with whatever information you like by subclassing <i>event.EventData</i> and passing an instance along with the event name to <i>notify()</i>. For more information see section 8.9 of the Mathworks OO documentation.
+         </p>
+         <p>Now
+that we have objects of our date class sending events, we need to add
+listeners - objects that will be informed when events are triggered.
+Note that objects of our date class will not necessarily know who is
+listening, unless we go out of our way to tell them, (which we will
+not). </p>
+         <p>There are two ways to register an object as a listener but we will only discuss one here: using the <i>addlistener()</i> method inherited from handle.
+         </p>
+         <p>(The other approach involves creating an object of type event.listener - see the Matlab OO documentation for more details).</p>
+         <p>Every class that inherits from handle has an <i>addlistener()</i> method that takes three arguments: a handle to an object that will generate events, the name of the event to listen for,
+            (e.g. 'y2k'), and a handle to a function that should execute when the event is 'heard'. This function, called a <b>callback</b> function, must take two arguments: src - the object that generated the event, and evnt - the event object. Here is a possible
+            class definition for listening objects. Note, we can call <i>addlistener()</i> at any point, not just in the constructor as we do here.
+         </p>
+         <p> </p><hr> <pre> classdef snoopingClass &lt; handle</pre><pre>   properties
+      snoopOn;
+   end</pre><pre>    methods</pre><pre>        function obj snoopingClass(dateObj)
+        % class constructor
+           obj.snoopOn = dateObj;</pre><pre>           y2kListener = addlistener(dateObj,'y2k',@(src,evnt)fixY2Kbugs(obj,src,evnt));
+           olympicsListener = addlistener(dateObj,'olympicsStart',@(src,evnt)gossip(obj,src,evnt));
+        end</pre><pre>        function fixY2Kbugs(obj,src,evnt)
+        % This will be executed when a y2k event is fired by the date object.
+           display(evnt.EventName);
+        end</pre><pre>        function gossip(obj,src,evnt)
+        % This will be executed when a olympicsStart event is fired by the date object
+           display(evnt.EventName);
+        end
+    end</pre><p> </p><hr> 
+         <p>The execution of a callback can be temporarily deactivated by setting the Enabled property of the listener object to false.</p><pre>y2kListener.Enabled = false</pre><p>Four
+types of events are automatically fired in response to the access or
+assignment of observable properties: PreSet, PostSet, PreGet, &amp;
+PostGet. The 'pre' events are fired just before a value is changed or
+serviced, and the 'post' events are fired just after. Observable
+properties are those defined in a properties block with the
+setObservable or getObservable attributes set to true as in </p>
+         <p><b>properties(SetObservable = true)</b> .
+         </p>
+         <p>These events are not listed in the event block.</p>
+         <p>To add a listener for the PostSet event of the day property, for example, use the following syntax.</p>
+         <p>lh = addlistener(obj,'propertyName','PostSet',@(src,evnt)callbackFunction(obj,src,evnt));</p>
+         <p>See
+section 8.14 of the Matlab OO documentation for more details on
+listening for property changes. Finally, note that subclasses inherit
+the events of their superclasses. </p>
+         <p> <a name="MetaClasses"></a> </p>
+         <h2>Meta Classes<a name="154"></a></h2>
+         <p>Matlab
+has quite a novel feature, meta classes, which allow you to dynamically
+inspect the properties of a particular class. Each class, defined using
+the classdef syntax, has a corresponding metaclass which you can invoke
+using the ? operator. The resulting object stores information about the
+class methods, properties, events, superclasses, etc, as well as their
+attributes. Metaclasses can be used to write highly generic code. The
+viewClassTree() method, (which displays a full class hierarchy of a
+project) makes extensive use of metaclasses and is available here: </p>
+         <p> <a href="http://www.cs.ubc.ca/%7Emdunham/tutorial/mfiles/viewClassTree.m">viewClassTree.m</a>. </p>
+         <p>The
+following example function, finds all of the superclasses of a
+particular class, including the superclasses of its superclasses. The <i>metaclass()</i> function operates just like the ? operator but can be used with string names, whereas ? requires an instance of the object.
+         </p>
+         <p> </p><hr> <pre>   function list = ancestors(class)
+   % input is the string name of the base class
+   % output is a cell array of ancestor class names
+       list = {};
+       meta = metaclass(class);
+       parents = meta.SuperClasses;
+       for p=1:numel(parents)
+           list = [parents{p}.Name,ancestors(parents{p}.Name)];
+       end
+   end</pre><p> </p><hr> 
+         <p>Here is a look at the kind of data available.</p><pre class="codeinput">metadata = ?date
+</pre><pre class="codeoutput">metadata = 
+meta.class handle
+package: meta
+properties:
+                   Name: 'date'
+            Description: ''
+    DetailedDescription: ''
+                 Hidden: 0
+                 Sealed: 0
+        ConstructOnLoad: 0
+        InferiorClasses: {0x1 cell}
+             Properties: {11x1 cell}
+                Methods: {22x1 cell}
+                 Events: {3x1 cell}
+           SuperClasses: {[1x1 meta.class]}
+      ContainingPackage: {}
+</pre><p> <a name="Packages"></a> </p>
+         <h2>Packages<a name="163"></a></h2>
+         <p>When
+working with large projects or when many projects exist on the Matlab
+path, it can be useful to organize them into packages, effectively
+partitioning the name space. Packages are directories beginning with
+the + character as in +calendar and any class or function placed inside
+must be accessed by first referring to the package name followed by a
+dot as in calendar.date. Both standalone functions and classes can be
+placed inside of a package. Supposing we put the date class from above
+into the +calendar package, we would call the <i>printCurrentDate()</i> static method like this:
+         </p><pre> calendar.date.printCurrentDate()</pre><p>Classes and functions with the same names as other classes or functions no longer interfere with each other when placed in
+            separate packages.
+         </p>
+         <p>For the sake of brevity, it is sometimes desirable to import a package's namespace into the main namespace temporarily so
+            that we do not have to prefix every call with the package name. We can use the <i>import()</i> function for this as in <b>import calendar</b> and clear the imported namespaces with
+         </p><pre class="codeinput">clear <span class="string">import</span>;
+</pre><p>Packages can also be nested within each other.</p>
+         <p>Finally,
+individual classes and their properties can be imported and used
+without having to first refer to the class name. This is really only
+advisable when dealing with a class created to store constants because
+of the potential for name clashes. To do so you simply specify the
+fully named path as in <b>import calendar.date.year</b> or <b>import calendar.date.</b>*
+         </p>
+         <p> <a name="Example"></a> </p>
+         <h2>Example<a name="171"></a></h2>
+         <p>The date class example can be seen in full here:</p>
+         <p> <a href="http://www.cs.ubc.ca/%7Emdunham/tutorial/mfiles/date.html">@date</a> </p>
+         <p> <a name="WritingClassesPriorToVersion2008a"></a> </p>
+         <h2>Writing Classes Prior to Version 2008a<a name="174"></a></h2>
+         <p>We
+now describe how to create classes and use objects using the old OO
+style. This approach is still supported in 2008a and was the only OO
+framework available prior to this version, (although versions 2007a and
+2007b do, unofficially, work with the new syntax provided a number of
+the more advanced features are not used). The old framework is much
+more limited and cumbersome but in some ways it is more consistent with
+the rest of the Matlab syntax. It does bridge the inherent connection
+with structs much more explicitly, for example. </p>
+         <p>Keep in mind that if you write classes in
+the old style, the following features, available in the new framework,
+are not supported: protected, abstract, static/constant, sealed, or
+hidden methods or properties; single file class definitions; events;
+handle classes; packages; special set. and get. methods;
+object.method() syntax; or meta-classes. However, you can still perform
+operator overloading; in fact, if anything, it plays a more prominent
+role. </p>
+         <p> <a name="oldDefiningAclass"></a> </p>
+         <h2>(&lt;2008a) Defining a Class<a name="177"></a></h2>
+         <p>To
+begin, every method must be saved in its own file, including the
+constructor, and these files must be stored in a directory with the
+same name as the class but preceded by the @ symbol as in @date. The
+parent directory containing this @ directory, must be on the Matlab
+path. </p>
+         <p>Every class needs to have a constructor method, which <i>constructs</i> the objects of the class. The constructor must have the same name as the class and be saved in an m-file by the same name,
+            (e.g. create a function called <i>date</i> and save it in date.m stored in the @date directory). Here is a sample definition:
+         </p>
+         <p><b>function obj = date(minute, hour, day, month, year)</b></p>
+         <p>We
+define the properties of the class by creating a struct with fields by
+the same name and we must add one field for every property, even if we
+leave the data initially blank, (i.e. equal to []). We then convert the
+struct to an object by using the <i>class()</i> function.
+         </p>
+         <p> </p><hr> <pre> function obj = date(minute, hour, day, month, year)
+ % constructor saved in file date.m</pre><pre>       obj = struct;
+       obj.minute = [];                % leave blank for whatever reason
+       obj.hour = hour;
+       obj.day = day;
+       obj.month = month;
+       obj. year = year;
+       obj = class(obj,'date');
+ end</pre><p> </p><hr> 
+         <p>We can create objects by calling the constructor.</p><pre> obj = date(12,2,3,11,2008);         % create a new date object</pre><p>Note
+that in earlier versions of Matlab, special care had to be taken to
+allow for objects to be saved and loaded from disk. This is no longer
+the case, even when using the old syntax. If you are using an older
+version of Matlab and run into this problem, check out the following
+site for a work around: <a href="http://www.cs.ubc.ca/%7Emurphyk/Software/matlabObjects.html">http://www.cs.ubc.ca/~murphyk/Software/matlabObjects.html</a></p>
+         <p>When changes are made to a class definition, existing objects of that class are not automatically updated; they must be cleared
+            and recreated. In older version of Matlab, it was necessary to use the <b>clear classes</b>
+command after making definitional changes. If you experience odd
+behavior, this can sometimes help. Also in older versions, date
+objects, for example, could not be created if @date were the current
+directory. Moving up one level did the trick. </p>
+         <p> <a name="oldPropertyAccess"></a> </p>
+         <h2>(&lt;2008a) Property Access<a name="189"></a></h2>
+         <p>Technically,
+the creation of the constructor method in the @ directory is sufficient
+to create a class and objects from it, however, our date objects are
+not yet very useful because Matlab protects the properties from access
+outside of the class. They are effectively private. Only class methods
+can access properties in the old style, which includes any function
+stored inside of the @ directory. </p>
+         <p> <a name="oldSubsrefAndSubsasgn"></a> </p>
+         <h2>(&lt;2008a) Subsref &amp; Subsasgn<a name="191"></a></h2>
+         <p>As we mentioned in the section on <i>Operator Overloading</i> ,every use of a dot such as <b>obj.prop</b>, is actually shorthand for a call to either the <i>subsasgn()</i> or the <i>subrsref()</i> function just like calls involving the '+' operator are shorthand for the <i>plus()</i>
+function. Subsref is called in indexing operations, (i.e. when data is
+requested) and subsasgn is used in assignment operations, (i.e. when
+data is changed). These same functions are called when parentheses are
+used as well, as in <i>a = date(3,2)</i> , or <i>date(3,2) = 5</i> ,(and similarly with {} braces when dealing with structs).
+         </p>
+         <p>One of the most powerful features of OOP in Matlab is the ability to <b>overload</b>
+such functions so that they perform customized behavior when used with
+objects of our class. If we create functions by these names and store
+them inside of the @ directory containing our class files, these
+functions will be executed when calls involving a . or () are made as
+opposed to the default implementations. We can then use these as our
+getter and setter methods so that users can access and set object
+properties with the same syntax as they would struct fields, for
+instance. More complicated behavior is certainly possible too. </p>
+         <p>The default behavior of these functions,
+for objects, is to restrict access to properties completely, but we can
+'recover' the lax behavior we enjoyed with structs and effectively make
+the all of the properties public with the following simple
+implementations. We make use the the <i>builtin()</i> function to do so, which bypasses the redefined or 'overloaded' object versions, (versions overriden by Mathworks in this
+            case). In general <i>builtin()</i> can be very useful when a function has been overloaded but you want the original behavior. Here we simply pass the inputs
+            to the functions directly to <i>builtin()</i>. For more detail on these functions, (e.g. on the S arguement), see the <i>Operator Overloading</i> section above.
+         </p>
+         <p> </p><hr> <pre>  function obj = subsasgn(obj, S, value)
+     obj = builtin('subsasgn', obj, S, value);
+  end</pre><pre>  function value = subsref(obj, S)
+      value = builtin('subsref', obj, S);
+  end</pre><p> </p><hr> 
+         <p>With these functions in place, properties of our object can then be accessed and assigned values as follows.</p><pre class="codeinput">d1 = date(0,3,27,2,1998);        <span class="comment">% construct a new object</span>
+min = d1.minute                  <span class="comment">% get the minute property using . notation</span>
+d1.hour = 4;                     <span class="comment">% set the hour property using the . notation</span>
+</pre><pre class="codeoutput">min =
+     0
+</pre><p> <a name="oldDisplayingObjects"></a> </p>
+         <h2>(&lt;2008a) Displaying Objects<a name="199"></a></h2>
+         <p>In the old OO style, objects are not displayed for you. You can overload the <i>display()</i> function so that basic info about the object is displayed in calls that do not suppress output with a semicolon. Here is
+            a simple implementation. The <i>struct()</i> function when applied to an object, converts that object into a struct with fields corresponding to the properties of the
+            object. Struct can also be used with objects created via the new OO framework.
+         </p><pre> function display(obj)
+     disp(sprintf('%s object', class(obj)))
+     disp(struct(obj))
+ end</pre><p>The section on <i>Operator Overloading</i> discusses several other functions that can be overloaded.
+         </p>
+         <p> <a name="oldMethods"></a> </p>
+         <h2>(&lt;2008a) Methods<a name="202"></a></h2>
+         <p>To
+define methods, we simply create functions with definitions like the
+following and save them in the @ directory. The first argument should
+be an object of the containing class. Methods that change object
+properties must return the object, (because they are passed by value).
+We do not have the option in the old framework, as we do with the new,
+of writing classes whose objects can be passed by reference. </p>
+         <p> </p><hr> <pre> obj = rollDay(obj,3);</pre><pre> function obj = rollDay(obj,numdays)
+      obj.day = obj.day + numdays;
+ end</pre><p> </p><hr> 
+         <p>Similarly, calls such as obj2 = obj, result in a copy of the object <i>obj</i> stored in the variable <i>obj2</i>.
+         </p>
+         <p>If you choose not to overload <i>subsasgn()</i> and <i>subsref()</i>
+but still want to provide outside access to certain properties you will
+need to write java style get and set functions as in the following.
+This approach, while less concise, does maintain the separation between
+implementation and interface without necessitating complicated
+implementations of subasgn and subsref. </p>
+         <p> </p><hr> <pre> function day = getDay(obj)
+    % we could change this code later without affecting users of getDay.
+    day = obj.day;
+ end</pre><pre> function obj = setDay(obj,newDay)
+     obj.day = newDay;
+ end</pre><p> </p><hr> 
+         <p> <a name="PrivateMethods"></a> </p>
+         <h2>(&lt;2008a) Private Methods<a name="214"></a></h2>
+         <p>Private
+methods are functions that can only be called by other methods of the
+class, not end users; they are not intended to act as part of the class
+interface. To make a method private in the old OO framework, create a
+sub-directory called 'private' in the @ directory and save it inside.
+You can call private methods, (from within other class methods) as you
+would any other method. </p>
+         <p> <a name="oldInheritanceSyntax"></a> </p>
+         <h2>(&lt;2008a) Inheritance Syntax<a name="216"></a></h2>
+         <p>Inheritance in the old OO framework is quite limited and you cannot subclass built in classes like handle. Superclasses are
+            specified as inputs to the <i>class()</i> function called in the constructor. You must pass in instances of the superclass objects.
+         </p><pre> p1 = parent1(); p2 = parent2();   % create instances of the parent classes
+ obj = class(obj,'date',p1,p2);    % pass these instances into the class function</pre><p>Type <b>doc class</b> for additional calling sequences including an option to create an array of objects from an array of structs.
+         </p>
+         <p>For more general information on inheritance, see the several related sections written regarding the new OO style.</p>
+         <p> <a name="oldDynamicDispatch"></a> </p>
+         <h2>(&lt;2008a) Dynamic Dispatch<a name="221"></a></h2>
+         <p>The
+old OO framework supports dynamic dispatch in much the same way as the
+new framework. When multiple objects of different types are passed to a
+method, the superior-inferior relation is used to determine which
+method to invoke, just as with the new OO design. However, in the old
+style, we must specify this relation by using the using the <i>inferiorto()</i> ,and <i>superiorto()</i> functions from within the constructor as in the following.
+         </p><pre>inferiorto('class1','class2');</pre><p>Again, when the superiority of two classes is the same, the left most takes precedence.</p>
+         <p> <a href="http://www.cs.ubc.ca/%7Emdunham">Home Page</a> </p>
+         <p class="footer"><br>
+            Published with MATLAB® 7.6<br></p>
+      </div>
+      <!--
+##### SOURCE BEGIN #####
+%% Object Oriented Programming in Matlab
+%
+% One of Matlab's best kept secrets is its comprehensive support for
+% Object Oriented Programming, (OOP). Entire courses in computer science
+% are devoted to extolling OOPs many virtues and we will not have space to
+% mention them all here. Instead, we focus on the specifics of OOP in
+% Matlab and provide enough detail to start using objects in your own
+% programs and writing your own classes. 
+%
+%% 
+% We make extensive reference to the online Matlab OO documentation
+% available here:
+% <http://www.mathworks.com/access/helpdesk/help/pdf_doc/matlab/matlab_oop.pdf>
+%%
+% <html>
+% <META HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE">
+% </html>
+%%
+% <html> 
+% <A NAME="OldVsNewSyntax"></a>
+% </html>
+%% Old vs New Syntax 
+% 
+% Mathworks recently, (as of version 2008a) introduced an entirely new
+% Object Oriented, (OO), framework and syntax, however, the old style is
+% still supported. This tutorial discusses both in some depth. Topics
+% relating only to the old style are tagged (<2008a) and are listed in the
+% bottom third of the document. They can be safely skipped by anyone solely
+% interested in the new design. 
+%
+% The converse is not necessarily true, although for the most part the
+% sections on the old style are self contained. We suggest that the reader
+% interested only in the old style, nevertheless, read the following
+% sections in the top two-thirds of the tutorial:
+%  _Relation to Structs_ , _Dynamic Dispatch_ , _Operator Overloading_ ,
+%  _Object Arrays_ , _Object-Object Interaction_ ,& _Inheritance_.
+%%
+% <html> 
+% <A NAME="RelationToStructs"></a>
+% </html>
+%% Relation to Structs
+% Objects in Matlab are similar to structs, discussed earlier, in that
+% both allow you to consolidate and encapsulate your data. It will be
+% useful to remember this similarity as we progress, and if you are not 
+% yet familiar with structs, you may find it useful to return to that 
+% section first. 
+%%
+% Recall that structs are created by specifying field names and data to be
+% stored in these fields. Objects also have fields that store data, called
+% *properties*, which operate in a very similar way. However, unlike
+% structs, we must predefine what properties we want an entire class of
+% objects to have, and we do so by writing a class definition. While
+% objects of the same class will have the same set of properties, the
+% values of these properties will differ just as two different structs
+% might have the same field names and yet store different data. 
+%%
+% So far we could imagine achieving the same effect by creating, say, an
+% array of structs all with the same fields.  However, there are
+% further differences.
+%%
+% Objects, unlike structs, also encapsulate the operations we want
+% to perform on the data, called *methods*. 
+%%
+% Suppose for instance that we want to use and manipulate calendar dates in
+% our program. We could create structs with minute, hour, day, month, and
+% year fields and store all of the information about specific dates and
+% times in these. This would certainly be better than having separate
+% variables for all of these values floating around _unstructured_.
+% However, there are also a number of operations we we might want to
+% perform on these dates, such as incrementing them by a day, comparing
+% them, subtracting them, etc. We could write stand alone functions to
+% perform all of these operations, but it would be nice to organize them
+% together too, just as we did the data. This is precisely what an object
+% oriented approach lets us do. 
+%%
+% There are further differences and advantages, which we will come to in
+% due course. We first describe how to write a class definition.
+%%
+% <html> 
+% <A NAME="DefiningAclass"></a>
+% </html>
+%% Defining a Class 
+%
+% If you are new to OOP, make sure you mark the distinction between classes
+% and instances of that class, called objects. This distinction will
+% hopefully become clearer as we see more examples. In the class
+% definition, we create a kind of prototype, or specification for the
+% construction of a objects of a certain _class_ or _type_. From one class
+% definition, we create many instances. 
+%
+%%
+% To begin, create a new m-file with the same name as the class you want to
+% create and start the file with the *classdef* keyword followed by the
+% class name. Properties and methods are defined and written below this
+% line in designated blocks as shown below. We must include a special
+% method, called the *constructor* , which is responsible for
+% _constructing_ new objects and it must have the same name as the class. The
+% constructor can take any number of arguments specifying initial values
+% for the properties for instance, and must return one argument, the
+% constructed object. Properties can optionally be assigned default values
+% as with the minute property below. If no default is specified and no
+% value is assigned by the constructor, they are assigned the empty
+% matrix, []. 
+%% 
+% <html>
+% <hr>
+% </html>
+%%
+%     classdef date
+%     % write a description of the class here. 
+%
+%         properties
+%         % define the properties of the class here, (like fields of a struct)
+%             minute = 0;
+%             hour;
+%             day;
+%             month;
+%             year;
+%         end
+%      
+%         methods
+%         % methods, including the constructor are defined in this block
+%
+%             function obj = date(minute,hour,day,month,year)
+%             % class constructor
+%                 if(nargin > 0)
+%                   obj.minute = minute;
+%                   obj.hour   = hour;
+%                   obj.day    = day;
+%                   obj.month  = month;
+%                   obj.year   = year;
+%                 end
+%             end
+%             
+%             function obj = rollDay(obj,numdays)
+% 
+%                 obj.day = obj.day + numdays;
+%             end
+%             
+%         end
+%     end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% Our date constructor, could have been as simple as the following.
+%%
+%   function obj = date()
+%         obj;
+%   end
+%%
+% Matlab does all of the real work of creating the object, we just have to
+% ensure that we write a constructor by the right name and perform any
+% desired initialization, returning a declared variable. 
+%%
+% Now that we have written the class, we can create date objects by simply
+% calling the constructor.
+%%
+d1 = date(0,3,27,2,1998);                    % Create a new date object
+%%
+% It is usually good practice to write a constructor so we can optionally
+% create objects without having to specify any parameters. As we have
+% written the date class, we could create a date object like this as well:
+%%
+d2 = date();                                 % create a new date object                        
+%%
+% However, none of the properties, (except for minute) will be set. (They
+% will all be equal to []).
+%% Properties
+% The properties defined above are, in java lingo, _public_, that is,
+% accessible from outside the class just like fields of a struct. We can
+% access and assign them using dot notation. 
+%%
+day = d1.day;                                 % access the day property
+d1.year = 2008;                               % set the year property                              
+%%
+% It is usually a good idea, however, to restrict direct access to
+% properties to maintain a separation between implementation and interface.
+% That is, we want clients to be able to use our class without having to
+% know about the details of implementation and we will want the freedom to
+% change how we store properties, for instance, without affecting clients
+% already using our class. Perhaps at a later point, for example, we want
+% the freedom to only calculate the value of a property when the user asks
+% for it, (so called lazy evaluation). Without a level of indirection, this
+% would not be possible. The idea is then to provide access to properties
+% but only through methods. We will discuss such methods, so called getters
+% and setters shortly. 
+%%
+% Matlab offers quite a lot of control over property access. There are
+% three levels, *private* , *protected* , and *public* and these apply
+% separately to read and write access. Private properties are only
+% accessible from methods of the class, and public properties, (the
+% default) are accessible anywhere. Protected properties are private
+% properties that are also accessible from subclasses. We will discuss
+% subclasses and Inheritance later in this tutorial. 
+%
+%%
+% To mark a group of properties as say private, we modify the attributes of
+% a property block. We saw one such property block above, however, we can
+% create as many as we like all with different access rights so that some
+% properties can be public and others private for example. We specify these
+% access rights by assigning the GetAccess and SetAccess attributes
+% the strings 'public', 'private', or 'protected' as in the examples below.
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%     properties(GetAccess = 'public', SetAccess = 'private')
+%         % public read access, but private write access.
+%     end
+%     
+%     properties(GetAccess = 'private', SetAccess = 'private')
+%         % private read and write access
+%     end 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% There are other property attributes we can assign although they are
+% rarely of use with the exception of 'Constant' and perhaps 'Hidden'. We
+% can specify that a block of properties are constant and thus cannot be
+% changed anywhere as follows:
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%     properties(Constant = true)
+%         DAYS_PER_YEAR =  365;
+%         MONTHS_PER_YEAR = 12;
+%         WEEKS_PER_YEAR  = 52;
+%     end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% Hidden properties do not show up when displaying the object. For
+% information on additional attributes see section 6.7 of the Mathworks OO
+% documentation. Method attributes, which we discuss shortly, are listed in
+% section 7.4 and class attributes in section 3.5. 
+%%
+% We can view all of the (non-hidden) properties of a class using the
+% _properties()_ command.
+%%
+properties(date)
+%%
+% <html> 
+% <A NAME="Methods"></a>
+% </html>
+%% Methods
+% Methods in OOP, as we mentioned, are functions, defined in a class, that
+% operate specifically on objects of that class, (although they can
+% certainly take objects of other classes as additional arguments). Observe
+% the simple function, _rollDay()_ , which we have already defined. This
+% method adds a specified number of days to the day property. Notice that
+% the first argument of the function definition is an object of the
+% containing class. 
+%%
+% There are two equivalent ways of calling methods, both shown here.
+%%
+%  d1 = rollDay(d,3);
+%  d1 = d.rollDay(3);
+%%
+% The second option is probably more familiar to java and C++ programmers.
+% It is essentially translated into the first by placing the implicit
+% parameter, (the object d) as the first input into rollDay. Note, the 
+% method takes 2 parameters in both cases, (i.e. _nargin()_ will return 2
+% in each). There is really no particular reason to choose one over the
+% other except perhaps that the second makes it clearer that the function
+% is actually a method applied to object d. Pick one style and be
+% consistent throughout your program. 
+%% 
+% We must take care to return the object when we modify any properties.
+% Objects in Matlab are by default, passed by *value* not by *reference*,
+% which means that a full copy of the object is passed to methods and it is
+% this copy that is modified. If we do not pass back this copy, effectively
+% overwriting the original, we will not observe any change in the state. We
+% can optionally write classes whose objects are passed by reference,
+% which we discuss in the _Handle Superclass_ section. This point also
+% applies to calls like *d3 = d2*. If d2 is the date object we created
+% above, d3 will be an identical copy. 
+%%
+% <html> 
+% <A NAME="PrivateMethods"></a>
+% </html>
+%% Private Methods 
+% Methods, just like properties, can be private, protected, or public, (the
+% default). Private methods are helper functions that are not intended to
+% be part of the class interface or to be used outside the of the class
+% methods. It is often useful, for instance, to break public methods down
+% into a series of calls to private methods, (so call functional
+% decomposition). Protected methods, like protected properties, are private
+% except also accessible by subclasses. 
+%%
+% We define access to a block of methods, by assigning the string
+% 'private', 'protected', or 'public', to the Access attribute of the
+% methods block. We are free to create as many methods blocks as we like
+% each with different access attributes. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   methods(Access = private)
+%      function sec = calcSecs(obj)
+%        sec = obj.minute*60 + obj.hour*60*60 + obj.day*24*60*60;
+%      end
+%
+%      function TF = isValid(obj)
+%          TF = obj.minute >= 0 && obj.minute <= 60;
+%      end
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% <html> 
+% <A NAME="StaticMethods"></a>
+% </html>
+%% Static Methods
+% Static methods are methods that are associated with a class as opposed to
+% instances of that class and are defined, as you would expect, in a method
+% block that looks like this:
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   methods(Static = true)
+%       function printCurrentDate()
+%           display(datestr(now));
+%       end
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% They are useful when you have methods are are thematically related to the
+% class but which do not use any information particular to specific
+% instances of that class. Methods that demo class functionality are also
+% good candidates. 
+%%
+% To call a static method, you specify the classname, followed by a dot and
+% the static method name.
+%%
+  date.printCurrentDate()
+%%
+% Methods can also be hidden with _methods(Hidden = true)_ hiding them from
+% functions that display class methods such as _methods()_ or
+% _methodsview()_ . We will discuss abstract and sealed methods after first
+% introducing inheritance. 
+%%
+% <html> 
+% <A NAME="ExternalFunctionsAndMethods"></a>
+% </html>
+%% External Functions & Methods
+% Our class methods are free to call out to any external function on the
+% Matlab path to perform interim calculations. Moreover, if we save our
+% classdef m-file in a directory with the same name as the class but
+% preceded by the @ symbol,(e.g. @date), we can write methods in their own
+% files, store them here, and use them as we would any other method. The
+% declaration looks just like the function declarations above and the file
+% name is the same as the function name. 
+%
+% However, we cannot assign such methods any of the method attributes just
+% discussed, (like static, hidden, or protected), they are automatically public. 
+%
+% To write external private methods, save them into a subdirectory called
+% private, e.g. \@date\private\myMethod.m.
+%%
+% <html> 
+% <A NAME="DynamicDispatch"></a>
+% </html>
+%% Dynamic Dispatch
+%
+% An advantage of OOP is that we can create two different classes each with
+% the same method names and Matlab will automatically call the correct
+% method depending on the type of of the object passed. For example, a call
+% like *obj = increment(obj)* will call the increment method from whatever
+% class obj happens to belong, even if multiple classes have an increment
+% method. 
+%
+%%
+% When multiple objects are passed to a method, Matlab determines which
+% class's method to call based on the _superior-inferior_ relation. The
+% most superior class's method is invoked and if all of the classes have
+% equal superiority, the left most object takes precedence. 
+%
+%% 
+% We specify these relationships when creating classes, right in the 
+% classdef statements as follows:
+%%
+% *classdef(InferiorClasses = {?class1, ?class2})*
+%%
+% The ? marks are used to construct metaclass instances but this detail is
+% not particularly important; class1 and class2 are instances of the
+% inferior classes. We discuss meta classes in a later section. 
+% 
+% Arrays of objects can be passed to methods as well but the class of an
+% array of objects is the same as the class of the objects stored inside,
+% (which must all be the same), and this class is used to determine
+% precedence. See the section on _Object Arrays_ for more information.
+%%
+% <html> 
+% <A NAME="SetAndGet"></a>
+% </html>
+%% Set and Get
+% Matlab supports special kinds of setter and getter functions for
+% assigning and accessing properties that are executed whenever an attempt
+% to set or get the corresponding property is made. Use of these is
+% optional; they are only called if they exist. By taking this approach, we
+% can make properties public so that clients can use the convenient dot
+% notation, while still maintaining a level of indirection by effectively
+% intercepting the call.
+%
+% We will add get and set methods for the public day property of the date
+% class as an example. We write _get_ followed by a dot and the property
+% name, similarly for _set_ . 
+%%
+% <html>
+% <hr>
+% </html>
+%% 
+%   function day = get.day(obj)
+%       day = obj.day;              % We could execute other code as well.
+%   end
+% 
+%   function obj = set.day(obj,newday)
+%       obj.day = newday;           
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% We then assign and query the value as we did before using the dot
+% notation, but the call is intercepted by these functions. We must take
+% care as before to return the object in the setter methods, (as the
+% objects are by default passed by value). 
+%%
+day = d1.day;
+d1.day = 5;
+%%
+% Unfortunately, as of Matlab version 2008a, it was not possible to
+% override get and set methods in subclasses, severely limiting the use
+% value of this approach in complex projects. Furthermore, these methods
+% are called even when properties are accessed or set from within the
+% class, making their use for input checking a frustrating exercise. Keep
+% this in mind when initializing variables in the constructor; these
+% functions, if present, are invoked during construction and so must be
+% able to deal with cases in which the variables are not yet set. 
+%
+%%
+% <html> 
+% <A NAME="Inheritance"></a>
+% </html>
+%% Inheritance 
+% When writing classes, we often find that some types are really special
+% cases of others. For instance, integers are really special cases of
+% numbers in general. This is different than the class-object relation,
+% such as the number 3 being a specific instance of the integer class or
+% the Earth being a specific instance of the planet class. Planets,
+% however, are a subclass of say celestial bodies.
+% 
+% Inheritance in OOP allows us to write subclasses that _inherit_ all of
+% the properties and methods of their superclass so that we do not have to
+% recode all of the parent functionality. The subclass then extends or
+% specializes this functionality. 
+%
+% We can think of the methods of a subclass as the union of all of its own
+% methods with the methods of its parent superclass, and similarly for
+% properties. 
+%
+% Subclasses can redefine methods inherited from parents by simply
+% specifying a method by the same name, (the number & names of arguments do
+% not have to be the same). The subclass version is used with objects of
+% that class, while the superclass version is used with supeclass objects -
+% another example of dynamic dispatch.
+% 
+% If you find yourself writing the same methods in two or more classes,
+% consider creating an inheritance hierarchy in which the superclass
+% contains the code common to all of the subclasses. This hierarchy can be
+% as many levels deep as you like. 
+%
+% Be aware that classes written in the new syntax cannot inherit from
+% those written in the old, and vice versa. 
+%%
+% We can specify a superclass for a class we are writing by using the
+% following syntax in the classdef statement of our class definition. 
+%
+% *classdef classname < superclass*
+%
+% Matlab supports multiple inheritance, i.e.  subclasses with multiple
+% superclasses. Care must be taken that naming conflicts do not occur. See
+% section 5.11 of the Matlab OO documentation for details on multiple
+% inheritance conflict resolution. To inherit from multiple classes,
+% separate the superclasses with the & symbol as in the following. 
+%
+% *classdef classname < super1 & super2 & super3*
+%
+%%
+% <html> 
+% <A NAME="CallingAsuperclassMethod"></a>
+% </html>
+%% Calling a Superclass Method
+% When a method has been redefined in a subclass, it is sometimes necessary
+% to call the superclass version from the subclass. Sometimes, for example,
+% you want the subclass version to do everything the superclass version
+% does, and more. Rather than copy the code from the superclass, you can
+% first call the superclass version and then execute further code. 
+%
+% To access superclass methods and properties use the @ operator as in
+%
+% *methodname@superclassname(input1,input2)*
+%
+% While it will not produce an error, it is not necessary to use the
+% @ operator to access inherited methods or properties that have not been
+% redefined. You can access them in the same way as you would a method or
+% property written in the subclass.
+%%
+% <html> 
+% <A NAME="ClassAliases"></a>
+% </html>
+%% Class Aliases
+% We can create multiple names for the same class with empty classdef
+% declarations. 
+%%
+%     classdef newclassname < oldclassname
+%     end
+%%
+% <html> 
+% <A NAME="SealedClassesMethodsAndProperties"></a>
+% </html>
+%% Sealed Classes, Methods & Properties
+% A sealed class cannot be subclassed and a sealed method or property
+% cannot be redefined in a subclass. This is similar to Java's _final_
+% keyword. Classes are defined as sealed in the classdef statement and
+% methods and properties are sealed by modifying the methods or properties
+% block attribute.
+%%
+%  classdef(Sealed = true) myclass
+%  methods(Sealed = true)
+%  properties(Sealed = true
+%
+%%
+% <html> 
+% <A NAME="AbstractMethodsAndProperties"></a>
+% </html>
+%% Abstract Methods & Properties
+% Abstract methods, simply put, are methods that have a function header,
+% but not a function body, (i.e. no implementation). They are used to
+% define a common interface for all current and future subclasses. Abstract
+% methods must be implemented by subclasses and as such their inclusion in
+% a superclass acts as a kind of contract, enforcing interface
+% consistency. Of course, if the implementations in all of the subclasses
+% are going to be the same, we are better off writing a regular method in
+% the superclass, which will be inherited by all subclasses. Abstract
+% methods are useful when we know subclasses need to have a particular
+% method but each subclass implementation will be slightly different. 
+%
+% Lets suppose we have a shape superclass with many subclasses like sphere,
+% cube, elipsoid, pyramid, etc. We want every subclass (and future
+% subclasses other people might dream up) to have a calculateVolume()
+% method. The calculation will be different in each case but by creating a
+% calculateVolume() abstract method in the shape superclass, we can rely on
+% the fact that each subclass will have such a method. We can then write
+% other classes or functions that depend on this fact and do not have to
+% rewrite any code when new shape subclasses are created. 
+%
+% Properties can also be abstract but are of less use - they too have to be
+% defined in subclasses.
+%
+% A class with one or more abstract methods or properties is considered
+% abstract itself and instances cannot be created from it. Any subclass
+% that does not implement every one of the abstract methods and properties
+% of its superclasses will itself be abstract, essentially delegating the
+% implementation of some or all of them to further subclasses. 
+%
+% We define a block of methods as abstract with the Abstract attribute, and
+% when writing the methods, we do not include a body.
+%
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%     methods(Abstract = true)
+%         function vol = calculateVolume(obj,units);
+%         function area = calculateSurfaceArea(obj,units);
+%         function obj = doubleSize(obj);
+%     end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% <html> 
+% <A NAME="HandleSuperclass"></a>
+% </html>
+%% Handle Superclass
+% We previously mentioned that objects in Matlab are, (by default) passed
+% by value, meaning that full copies are passed back and forth in method
+% calls. Matlab graphics objects, however, are passed by reference, (via 
+% handles). If we subclass the built in *handle* class as in 
+% 
+% *classdef myclass < handle*
+%
+% then objects of our class will be passed by reference too, not value.
+% Doing so has a number of benefits and consequences, which we will now
+% discuss. 
+%
+%%
+% When we construct a handle object as in *h = myclass()*, h stores a
+% pointer or handle to the object not the object itself. If we then execute
+% *h2 = h*, we simply create another pointer to the same underlying
+% object. For example, we could call *h.prop = 3* , and then *p = h2.prop*
+% and p would equal 3. 
+%
+%%
+% In handle method calls, there is no need to return the object because
+% assignments occur _in place_, (although returning a handle to the object
+% does no harm).
+%%
+% If our objects will be very large, it can be much more space efficient to
+% use handle objects because we no longer need to copy the entire object in
+% every method call. (Note, however, that Matlab does a lot of optimization
+% under the surface and only actually copies objects or variables when it
+% absolutely has to). 
+%
+% Only handle classes support events; we will discuss events shortly. 
+%
+%%
+% The major advantage, however, is that it is much easier to write data
+% structures, (particularly recursive structures) such link lists or binary
+% trees. We give a very simple implementation of a binary tree class now
+% and illustrate how we can easily recurse over all of the nodes by simply
+% _following_ handles. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%  classdef bnode < handle               % subclass handle
+%      
+%      properties
+%         left;        % left  child
+%         right;       % right child
+%         data;        % data stored at the node
+%      end
+%     
+%      methods
+%          function obj = bnode(data)
+%              obj;
+%              if(nargin > 0)
+%                  obj.data = data;
+%              end
+%          end
+%      end
+%  end
+% 
+% 
+%  function labelNodes(node,depth)
+%  % recursively label the depth of the nodes
+%      if(isempty(node)),return,end
+%      node.data = depth;
+%      labelNodes(node.left,depth+1);
+%      labelNodes(node.right,depth+1);
+%  end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%
+% It is much more complicated to create an identical copy of a
+% handle object as we cannot simply go *h2 = h1*. We can use the following
+% code, however, to create a shallow copy of any object we like. It needs
+% full access to all of the properties and so should be added as a class
+% method. Another approach is to use the _struct()_ function to convert
+% an object to a struct and then write the constructor to optionally take a
+% struct, building a new object from its fields.
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   function copy = copyobj(obj)
+%   % Create a shallow copy of the calling object.
+%       copy = eval(class(obj));
+%       meta = eval(['?',class(obj)]);
+%       for p = 1: size(meta.Properties,1)
+%           pname = meta.Properties{p}.Name;
+%           try
+%               eval(['copy.',pname,' = obj.',pname,';']);
+%           catch 
+%               fprintf(['\nCould not copy ',pname,'.\n']);
+%           end
+%       end
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% When there are no more handles to an object left on the stack, the object
+% is declared invalid and the Matlab garbage collector will free the memory
+% when it gets a chance. We can test if a handle to an object is valid with
+% the _isvalid(h)_ method and delete the object, causing all of its handles
+% to become invalid with _delete(h)_.
+%
+%%
+% <html> 
+% <A NAME="dynamicpropsAndhgsetget"></a>
+% </html>
+%% dynamicprops & hgsetget
+%
+% Handle has two subclasses, which you can subclass instead yielding
+% addtional functionality. By subclassing *dynamicprops* you get all of the
+% benefits of subclassing handle plus the ability to dynamically attach
+% temporary data to objects without modifying the class definition. You
+% simply call the inherited _addprop()_ function, as in
+% *P = obj.addprop('newProperty')* and you can then make calls like
+% *obj.newProperty = 3* or *val = obj.newProperty*. The return value of
+% _addprop()_ ,P, can be used to set attributes of the property, (i.e. make
+% it hidden, etc.), or to delete the property via *delete(P)*.
+%
+% The *hgsetget* class, (also a subclass of handle), lets you use Matlab
+% graphics style set and get methods as in *set(h,'property',value)*. See
+% section 4.19 in the Matlab OO documentation for more details). 
+% 
+% You can also subclass built in types like double. 
+%%
+% <html> 
+% <A NAME="OperatorOverloading"></a>
+% </html>
+%% Operator Overloading
+% Every use of a Matlab operator, such as 
+%%
+%  + - .* * ./ .\ / \ .^ ^ < > <= >=
+%  == ~ ~= & | && || : ' .' [] [;] () .
+%%
+% is actually short hand or syntactic sugar for a call to a named function
+% like plus(), minus(), times(), power(), lt(), eq(), not(), etc. Section
+% 7.32 of the Matlab OO documentation lists all of these operators with
+% their corresponding function names. 
+%%
+% We can define custom behavior for any of these operators by witting
+% class methods by the same name. Since class methods are dynamically
+% dispatched, our own versions of these functions will execute when we use
+% the corresponding operators with our objects. We could write our own
+% _plus()_ method in the date class, for example, to add dates together and
+% then call the function with *d1 + d2*. Or, we could write our own _lt()_
+% function, (for less than) to compare dates, calling it with *d1 < d2*. 
+% Such calls get converted automatically to _plus(d1,d2)_ and _lt(d1,d2)_,
+% and our own implementations of these functions are then invoked. 
+%
+% Operators retain their natural precedence so that * takes precedence over
+% + in order of operations, even if one or both have been overloaded. 
+%
+% Another useful method to overload is _display()_ - the function that
+% automatically displays objects when we do not suppress the output with a
+% semicolon. Writing our own _display_ function allows us to display
+% objects in any way we like. 
+%
+% Sometimes it is useful to simply reuse concise informative names that
+% belong to built in functions like _plot()_. While plot is never
+% automatically invoked, nor does it correspond to an operator, it is used
+% so frequently in Matlab that reusing this name with our own objects can
+% serve to self document their behavior extremely well, (assuming our plot
+% function does something reasonable). 
+%
+%%
+% If you overload an operator or function but want to use the original
+% implementation for some reason, use the _builtin()_ function, which takes
+% the string name of the function as the first input, followed by that
+% function's inputs. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% There are two very important functions that are frequently overloaded and
+% deserve specific mention: subsref, and subsasgn. When the dot operator, 
+% parentheses, or curly braces, . () {}, are used in indexing operations,
+% subsasgn is called, and when they are used in assignment operations,
+% subsasgn is called. By overloading these functions, we can create
+% customized behavior for our classes. 
+%
+% Suppose we write our own data structure class, for instance, and want
+% calls like obj(3) to retrieve the third element in our structure, we
+% could achieve this by overloading subsref.
+%
+%%
+% Here are the definitions of these functions:
+%%
+%    function obj = subsasgn(obj, S, value)
+%    function value = subsref(obj, S)
+%
+%%
+% * obj is the calling object as in obj.prop or obj(3)
+% * value is the new or returned value as in obj.prop = value or value = obj.prop
+% * S is a structure with two fields: type and subs
+%%
+%   Type is one of '()' '{}' or '.' depending on the call.
+%   Subs is a cell array or a string of the actual subscripts used.
+%%
+% In complicated calls involving multiple operators like 
+% *obj(5,9).prop(1:19)=value*, a single call to subsasgn is made and all of
+% the information in the call is passed to the function. In this case, S
+% is an array of structs with the following values.
+%%
+%  S(1).type='()'	S(2).type='.'	    S(3).type='()'
+%  S(1).subs={5,9}	S(2).subs='prop'	S(3).subs={1:10}
+%%
+% Note that as of 2008a, overloaded operators do not work within the class 
+% methods, only from outside of the class, although this could, and
+% hopefully will change in future versions. This includes any function
+% included in the @ directory (if any) or any subdirectories. You can still
+% call the functions by name, (i.e. _plus()_ instead of +). 
+%
+%%
+% <html> 
+% <A NAME="ObjectArrays"></a>
+% </html>
+%% Object Arrays
+% Objects of the same class can be stored together in object arrays that
+% operate just like numeric arrays. We can concatenate objects together and
+% index into these arrays in the usual way. 
+%%
+d2 = date(1,4,22,3,2008);   % create another date
+dates = [d1 d2];            % we can concatenate objects just like numbers
+[nrows ncols] = size(dates) % and use other familiar functions
+d1 = dates(1,1);            % retrieve the first entry
+dates(1,1) = d1;            % assign the first entry
+%%
+% The type of a single date object is actually an object array of date
+% objects, albeit of size 1-by-1. Just about everything in Matlab is an
+% array of some sort and objects are no exception. This is quite unlike
+% java for instance, which distinguishes in terms of class, between an
+% object of type A and a collection of objects of type A. One consequence
+% of this is that method calls involving an array of objects dispatch the
+% same method as would be were only one object involved; this includes
+% calls to _subsref()_ and _subsasgn()_ . 
+%%
+% We can also store objects of multiple types in cells and structs.
+%%
+% <html> 
+% <A NAME="Events"></a>
+% </html>
+%% Events
+% Matlab now has quite good support for event based programming in which
+% objects trigger events in response to a change in state, notifying one or
+% more other objects that have registered as listeners. This can be
+% particularly useful when the appropriate flow of control depends upon
+% things external to the program such as a user's interaction with a
+% graphical interface or environmental sensors. It can be a useful paradigm
+% in its own right, however, particularly for simulations. Chapter 8 of the
+% Mathworks OO documentation covers events. 
+%%
+% To begin, all classes involved must inherit from the handle class, (or
+% one of its subclasses). The triggering class must declare an events block
+% in its class definition. Event blocks have attributes just like method
+% and property blocks, defining event access control. 
+%
+% The ListenAccess attribute determines where you can create event
+% listeners and NotifyAccess determines where events can be triggered. In
+% the below example, we set ListenAccess to public so that we can register
+% an object as a listener anywhere we like, and NotifyAccess to protected
+% so that only methods of the date class, (or any subclasses of date) can
+% trigger the events. 
+%
+% Within the block, we define the events by simply specifying a name. Here
+% we continue with the date example and will trigger events when the date
+% is equal to either Jan 1, 2000 or the Vancouver Olympics start date of
+% February 12, 2010. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%  events(ListenAccess = 'public', NotifyAccess = 'protected')
+%       y2k;                            % define a couple of events
+%       olympicsStart;
+%  end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% Now that we have defined two events, we have to decide when to trigger
+% them. Lets add a line to the set.day method we discussed earlier, (which
+% is called whenever the day property is set). We will have it call a new
+% method we will write called _checkDate()_ , which will fire the events if
+% the current date matches one we are looking for. We use the _notify()_
+% method, (inherited from handle) to fire the event and simply pass it the
+% name of the event we want to trigger. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%     function checkDate(obj)
+%         if(isempty(obj.year) || isempty(obj.month) || isempty(obj.day))
+%             return;        % this function may be called before all fields initialized.
+%         end
+%         if(obj.year == 2000 && obj.month == 1 && obj.day == 1)
+%             obj.notify('y2k');
+%         end
+%         if(obj.year == 2010 && obj.month == 2 && obj.day == 12)
+%             obj.notify('olympicsStart');
+%         end
+%     end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% Notify will send an event notification to every object that is
+% 'listening'. By default the event object will have the name, (as
+% specified in the events block, e.g. 'y2k' or 'olympicsStart') and a
+% handle to the source object itself - the object that triggered the event. 
+%
+% You can create customized event objects with whatever information you
+% like by subclassing _event.EventData_ and passing an instance along with
+% the event name to _notify()_. For more information see section 8.9 of the
+% Mathworks OO documentation. 
+%%
+% Now that we have objects of our date class sending events, we need to add
+% listeners - objects that will be informed when events are triggered. Note
+% that objects of our date class will not necessarily know who is
+% listening, unless we go out of our way to tell them, (which we will not). 
+%
+% There are two ways to register an object as a listener but we will only
+% discuss one here: using the _addlistener()_ method inherited from handle.
+%%
+% (The other approach involves creating an object of type event.listener -
+% see the Matlab OO documentation for more details). 
+% 
+%%
+% Every class that inherits from handle has an _addlistener()_ method that
+% takes three arguments: a handle to an object that will generate events,
+% the name of the event to listen for, (e.g. 'y2k'), and a handle to a
+% function that should execute when the event is 'heard'. This function,
+% called a *callback* function, must take two arguments: src - the object
+% that generated the event, and evnt - the event object. Here is a possible
+% class definition for listening objects. Note, we can call _addlistener()_
+% at any point, not just in the constructor as we do here. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   classdef snoopingClass < handle
+%     
+%     properties
+%        snoopOn; 
+%     end
+% 
+%      methods
+%      
+%          function obj snoopingClass(dateObj)
+%          % class constructor
+%             obj.snoopOn = dateObj;
+%
+%             y2kListener = addlistener(dateObj,'y2k',@(src,evnt)fixY2Kbugs(obj,src,evnt));
+%             olympicsListener = addlistener(dateObj,'olympicsStart',@(src,evnt)gossip(obj,src,evnt));
+%          end
+%      
+%          function fixY2Kbugs(obj,src,evnt)
+%          % This will be executed when a y2k event is fired by the date object.
+%             display(evnt.EventName);
+%          end
+%          
+%          function gossip(obj,src,evnt)
+%          % This will be executed when a olympicsStart event is fired by the date object
+%             display(evnt.EventName);
+%          end
+%      end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% The execution of a callback can be temporarily deactivated by setting the
+% Enabled property of the listener object to false. 
+%%
+%  y2kListener.Enabled = false
+%%
+% Four types of events are automatically fired in response to the access or
+% assignment of observable properties: PreSet, PostSet, PreGet, & PostGet.
+% The 'pre' events are fired just before a value is changed or serviced,
+% and the 'post' events are fired just after. Observable properties are
+% those defined in a properties block with the setObservable or
+% getObservable attributes set to true as in 
+%
+% *properties(SetObservable = true)* . 
+%
+% These events are not listed in the event block. 
+%%
+% To add a listener for the PostSet event of the day property, for example,
+% use the following syntax.
+%%
+% lh = addlistener(obj,'propertyName','PostSet',@(src,evnt)callbackFunction(obj,src,evnt));
+%%
+% See section 8.14 of the Matlab OO documentation for more details on
+% listening for property changes.  Finally, note that subclasses inherit
+% the events of their superclasses. 
+%%
+% <html> 
+% <A NAME="MetaClasses"></a>
+% </html>
+%% Meta Classes
+% Matlab has quite a novel feature, meta classes, which allow you to
+% dynamically inspect the properties of a particular class. Each class,
+% defined using the classdef syntax, has a corresponding metaclass which
+% you can invoke using the ? operator. The resulting object stores
+% information about the class methods, properties, events, superclasses,
+% etc, as well as their attributes. Metaclasses can be used to write highly
+% generic code. The viewClassTree() method, (which displays a full class
+% hierarchy of a project) makes extensive use of metaclasses and is
+% available here: 
+%%
+% <html> 
+% <A HREF = "./mfiles/viewClassTree.m">viewClassTree.m</A>.
+% </html>
+%%
+% The following example function, finds all of the superclasses of a
+% particular class, including the superclasses of its superclasses. The
+% _metaclass()_ function operates just like the ? operator but can be used
+% with string names, whereas ? requires an instance of the object. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%     function list = ancestors(class)
+%     % input is the string name of the base class
+%     % output is a cell array of ancestor class names
+%         list = {};
+%         meta = metaclass(class);
+%         parents = meta.SuperClasses;
+%         for p=1:numel(parents)
+%             list = [parents{p}.Name,ancestors(parents{p}.Name)];
+%         end
+%     end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% Here is a look at the kind of data available.
+%%
+metadata = ?date
+%%
+% <html> 
+% <A NAME="Packages"></a>
+% </html>
+%% Packages
+% When working with large projects or when many projects exist on the
+% Matlab path, it can be useful to organize them into packages, effectively
+% partitioning the name space. Packages are directories beginning with the
+% + character as in +calendar and any class or function placed inside must
+% be accessed by first referring to the package name followed by a dot as in
+% calendar.date. Both standalone functions and classes can be placed inside
+% of a package. Supposing we put the date class from above into the
+% +calendar package, we would call the _printCurrentDate()_ static method like
+% this:
+%%
+%   calendar.date.printCurrentDate()
+%%
+% Classes and functions with the same names as other classes or functions
+% no longer interfere with each other when placed in separate packages. 
+%%
+% For the sake of brevity, it is sometimes desirable to import a package's
+% namespace into the main namespace temporarily so that we do not have to
+% prefix every call with the package name. We can use the _import()_
+% function for this as in *import calendar* and clear the imported
+% namespaces with 
+%%
+clear import;
+%%
+% Packages can also be nested within each other. 
+%%
+% Finally, individual classes and their properties can be imported and used
+% without having to first refer to the class name. This is really only
+% advisable when dealing with a class created to store constants because of
+% the potential for name clashes. To do so you simply specify the fully
+% named path as in *import calendar.date.year* or *import calendar.date.**
+%%
+% <html> 
+% <A NAME="Example"></a>
+% </html>
+%% Example
+% The date class example can be seen in full here:
+%%
+% <html>
+% <A HREF="./mfiles/date.html">@date</A>
+% </html>
+%%
+% <html> 
+% <A NAME="WritingClassesPriorToVersion2008a"></a>
+% </html>
+%% Writing Classes Prior to Version 2008a
+% We now describe how to create classes and use objects using the old OO
+% style. This approach is still supported in 2008a and was the only OO
+% framework available prior to this version, (although versions 2007a and
+% 2007b do, unofficially, work with the new syntax provided a number of the
+% more advanced features are not used). The old framework is much more
+% limited and cumbersome but in some ways it is more consistent with the
+% rest of the Matlab syntax. It does bridge the inherent connection with
+% structs much more explicitly, for example. 
+%%
+% Keep in mind that if you write classes in the old style, the following
+% features, available in the new framework, are not supported:
+% protected, abstract, static/constant, sealed, or hidden methods or
+% properties; single file class definitions; events; handle classes;
+% packages; special set. and get. methods; object.method() syntax; or
+% meta-classes. However, you can still perform operator overloading; in
+% fact, if anything, it plays a more prominent role. 
+%%
+% <html> 
+% <A NAME="oldDefiningAclass"></a>
+% </html>
+%% (<2008a) Defining a Class  
+%
+% To begin, every method must be saved in its own file, including the
+% constructor, and these files must be stored in a directory with the same
+% name as the class but preceded by the @ symbol as in @date. The parent
+% directory containing this @ directory, must be on the Matlab path. 
+%% 
+% Every class needs to have a constructor method, which _constructs_ the 
+% objects of the class. The constructor must have the same name as the
+% class and be saved in an m-file by the same name, (e.g. create a function
+% called _date_ and save it in date.m stored in the @date directory). Here
+% is a sample definition:
+%%
+% *function obj = date(minute, hour, day, month, year)*
+%
+%%
+% We define the properties of the class by creating a struct with fields by
+% the same name and we must add one field for every property, even if we leave
+% the data initially blank, (i.e. equal to []). We then convert the struct
+% to an object by using the _class()_ function.
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   function obj = date(minute, hour, day, month, year)
+%   % constructor saved in file date.m
+%         
+%         obj = struct;
+%         obj.minute = [];                % leave blank for whatever reason
+%         obj.hour = hour; 
+%         obj.day = day;
+%         obj.month = month; 
+%         obj. year = year;
+%         obj = class(obj,'date');
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% We can create objects by calling the constructor.
+% 
+%%
+%   obj = date(12,2,3,11,2008);         % create a new date object
+%%
+% Note that in earlier versions of Matlab, special care had to be taken to
+% allow for objects to be saved and loaded from disk. This is no longer the
+% case, even when using the old syntax. If you are using an older version
+% of Matlab and run into this problem, check out the following site for a
+% work around:
+% <http://www.cs.ubc.ca/~murphyk/Software/matlabObjects.html>
+%%
+% When changes are made to a class definition, existing objects of that
+% class are not automatically updated; they must be cleared and recreated.
+% In older version of Matlab, it was necessary to use the *clear classes*
+% command after making definitional changes. If you experience odd
+% behavior, this can sometimes help. Also in older versions, date objects, 
+% for example, could not be created if @date were the current directory. 
+% Moving up one level did the trick.
+%%
+% <html> 
+% <A NAME="oldPropertyAccess"></a>
+% </html>
+%% (<2008a) Property Access
+% 
+% Technically, the creation of the constructor method in the @ directory is
+% sufficient to create a class and objects from it, however, our date
+% objects are not yet very useful because Matlab protects the properties
+% from access outside of the class. They are effectively private. Only
+% class methods can access properties in the old style, which includes any
+% function stored inside of the @ directory. 
+%
+%%
+% <html> 
+% <A NAME="oldSubsrefAndSubsasgn"></a>
+% </html>
+%% (<2008a) Subsref & Subsasgn
+% 
+% As we mentioned in the section on _Operator Overloading_ ,every use of a
+% dot such as *obj.prop*, is actually shorthand for a call to either the
+% _subsasgn()_ or the _subrsref()_ function just like calls involving the
+% '+' operator are shorthand for the _plus()_ function. Subsref is called
+% in indexing operations, (i.e. when data is requested) and subsasgn is
+% used in assignment operations, (i.e. when data is changed). These same
+% functions are called when parentheses are used as well, as in _a =
+% date(3,2)_ , or _date(3,2) = 5_ ,(and similarly with {} braces when
+% dealing with structs). 
+%
+% One of the most powerful features of OOP in Matlab is the ability to
+% *overload* such functions so that they perform customized behavior when
+% used with objects of our class. If we create functions by these names and
+% store them inside of the @ directory containing our class files, these
+% functions will be executed when calls involving a . or () are made as
+% opposed to the default implementations. We can then use these as our
+% getter and setter methods so that users can access and set object
+% properties with the same syntax as they would struct fields, for instance. 
+% More complicated behavior is certainly possible too. 
+%
+%% 
+% The default behavior of these functions, for objects, is to restrict
+% access to properties completely, but we can 'recover' the lax behavior we
+% enjoyed with structs and effectively make the all of the properties
+% public with the following simple implementations. We make use the the
+% _builtin()_ function to do so, which bypasses the redefined or
+% 'overloaded' object versions, (versions overriden by Mathworks in this
+% case). In general _builtin()_ can be very useful when a function has been
+% overloaded but you want the original behavior. Here we simply pass the
+% inputs to the functions directly to _builtin()_. For more detail on 
+% these functions, (e.g. on the S arguement), see the
+% _Operator Overloading_ section above. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%    function obj = subsasgn(obj, S, value)
+%       obj = builtin('subsasgn', obj, S, value);
+%    end
+%   
+%    function value = subsref(obj, S)
+%        value = builtin('subsref', obj, S);
+%    end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+% With these functions in place, properties of our object can then be
+% accessed and assigned values as follows.
+%%
+d1 = date(0,3,27,2,1998);        % construct a new object
+min = d1.minute                  % get the minute property using . notation
+d1.hour = 4;                     % set the hour property using the . notation
+%%
+% <html> 
+% <A NAME="oldDisplayingObjects"></a>
+% </html>
+%% (<2008a) Displaying Objects
+% In the old OO style, objects are not displayed for you. You can overload
+% the _display()_ function so that basic info about the object is displayed
+% in calls that do not suppress output with a semicolon. Here is a simple
+% implementation. The _struct()_ function when applied to an object,
+% converts that object into a struct with fields corresponding to the
+% properties of the object. Struct can also be used with objects created 
+% via the new OO framework. 
+%
+%   function display(obj) 
+%       disp(sprintf('%s object', class(obj)))
+%       disp(struct(obj))
+%   end
+%%
+% The section on _Operator Overloading_ discusses several other functions
+% that can be overloaded.
+%%
+% <html> 
+% <A NAME="oldMethods"></A>
+% </html>
+%% (<2008a) Methods
+%
+% To define methods, we simply create functions with definitions like
+% the following and save them in the @ directory. The first argument should
+% be an object of the containing class. Methods that change object
+% properties must return the object, (because they are passed by value).
+% We do not have the option in the old framework, as we do with the new, of
+% writing classes whose objects can be passed by reference. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   obj = rollDay(obj,3);
+%
+%   function obj = rollDay(obj,numdays)
+%        obj.day = obj.day + numdays;
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%% 
+% Similarly, calls such as obj2 = obj, result in a copy of the object _obj_
+% stored in the variable _obj2_. 
+%%
+% If you choose not to overload _subsasgn()_ and _subsref()_ but still want
+% to provide outside access to certain properties you will need to write
+% java style get and set functions as in the following. This approach,
+% while less concise, does maintain the separation between implementation
+% and interface without necessitating complicated implementations of subasgn 
+% and subsref. 
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%   function day = getDay(obj)
+%      % we could change this code later without affecting users of getDay.
+%      day = obj.day;                   
+%   end
+%   
+%   function obj = setDay(obj,newDay)
+%       obj.day = newDay;
+%   end
+%%
+% <html>
+% <hr>
+% </html>
+%%
+%%
+% <html> 
+% <A NAME="PrivateMethods"></a>
+% </html>
+%% (<2008a) Private Methods
+%
+% Private methods are functions that can only be called by other methods of
+% the class, not end users; they are not intended to act as part of
+% the class interface. To make a method private in the old OO framework,
+% create a sub-directory called 'private' in the @ directory and save it
+% inside. You can call private methods, (from within other class methods)
+% as you would any other method. 
+% 
+%%
+% <html> 
+% <A NAME="oldInheritanceSyntax"></a>
+% </html>
+%% (<2008a) Inheritance Syntax
+% Inheritance in the old OO framework is quite limited and you cannot
+% subclass built in classes like handle. Superclasses are specified as
+% inputs to the _class()_ function called in the constructor. You must pass
+% in instances of the superclass objects. 
+%%
+%
+%   p1 = parent1(); p2 = parent2();   % create instances of the parent classes
+%   obj = class(obj,'date',p1,p2);    % pass these instances into the class function
+%
+%%
+% Type *doc class* for additional calling sequences including an option to
+% create an array of objects from an array of structs.
+%%
+% For more general information on inheritance, see the several related
+% sections written regarding the new OO style.
+%%
+% <html> 
+% <A NAME="oldDynamicDispatch"></a>
+% </html>
+%% (<2008a) Dynamic Dispatch
+% The old OO framework supports dynamic dispatch in much the same way as
+% the new framework. When multiple objects of different types are passed to
+% a method, the superior-inferior relation is used to determine which
+% method to invoke, just as with the new OO design. However, in the old
+% style, we must specify this relation by using the using the 
+% _inferiorto()_ ,and _superiorto()_ functions from within the constructor
+% as in the following. 
+%
+%%
+%  inferiorto('class1','class2');
+%%
+% Again, when the superiority of two classes is the same, the left most
+% takes precedence. 
+%%
+% <html>
+% <A HREF="http://www.cs.ubc.ca/~mdunham">Home Page</A>
+% </html>
+%%
+##### SOURCE END #####
+-->
+   </body></html>
