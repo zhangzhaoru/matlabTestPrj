@@ -1,0 +1,3 @@
+1. folder1 in the folder ch5 is used for test script2P95.
+2. @Point1 is used to show how to define class and member methods separately.
+3. Point2 is a class definition with a local function.

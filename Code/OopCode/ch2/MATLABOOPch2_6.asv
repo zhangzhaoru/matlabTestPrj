@@ -1,0 +1,9 @@
+%% 
+p2=Point2D9(1,1)
+p3=Point3D2(1,1,1)
+isa(p2,'Point2D9')
+isa(p3,'Point2D9')
+isa(p2,'Point3D2')
+isa(p3,'Point3D2')
+%% 
+ViewB
