@@ -33,7 +33,7 @@ Ele_m = sin(2*pi*f_m*t);
 Azi_m = 1.5*sin(2*pi*f_m*t);
 Roll_m = 2*sin(2*pi*f_m*t);
 
-v_pitch = 1.5 * 2*pi*f_m * cos(2*pi*f_m*t);
+  = 1.5 * 2*pi*f_m * cos(2*pi*f_m*t);
 
 Dr = zeros(1,N_scan);
 
@@ -41,11 +41,11 @@ PointEle = zeros(1,N_scan);
 PointAzi = zeros(1,N_scan);
 
 % 视线角真值
-q_y = q_y0-10*sin(0.3*t);
-q_z = 10*sin(0.3*t);
-% 视线角速度真值
-Vqy = 3*cos(0.3*t);
-Vqz = 3*cos(0.3*t);
+% q_y = q_y0-10*sin(0.3*t);
+% q_z = 10*sin(0.3*t);
+% % 视线角速度真值
+% Vqy = 3*cos(0.3*t);
+% Vqz = 3*cos(0.3*t);
 
 %% 计算波束指向角真值及失调角
 epsilon_Ele = zeros(1,N_scan);
@@ -54,22 +54,22 @@ PointEle = zeros(1,N_scan);
 PointAzi = zeros(1,N_scan);
 v_PointEle = zeros(1,N_scan);
 v_PointAzi = zeros(1,N_scan);
-R = zeros(1,N_scan);
-R(1) = R0;
+Rmt = zeros(1,N_scan);
+Rmt(1) = R0;
 kk = zeros(N_scan);
 
-for i = 1:N_scan
-    [PointEle(i),PointAzi(i)]=fcn_sight_coor_2_antenna_coor(1.0,q_y(i),q_z(i),Roll_m(i),Ele_m(i),Azi_m(i));
-    %% 计算失调角测量值Azi
-    epsilon_Ele(i) = q_y(i)-PointEle(i);
-    epsilon_Azi(i) = q_z(i)-PointAzi(i);
-    % 计算各帧弹目距离真值
-    if i~=1
-        R(i) =  fcn_sight_coor_2_range(q_y(i-1),q_z(i-1),R(i-1),q_y(i),q_z(i));
-    end
-    % 计算导弹目标接近速度
-    kk(i) = -2*v_m/R(i);
-end
+% for i = 1:N_scan
+%     [PointEle(i),PointAzi(i)]=fcn_sight_coor_2_antenna_coor(1.0,q_y(i),q_z(i),Roll_m(i),Ele_m(i),Azi_m(i));
+%     %% 计算失调角测量值Azi
+%     epsilon_Ele(i) = q_y(i)-PointEle(i);
+%     epsilon_Azi(i) = q_z(i)-PointAzi(i);
+%     % 计算各帧弹目距离真值
+%     if i~=1
+%         R(i) =  fcn_sight_coor_2_range(q_y(i-1),q_z(i-1),R(i-1),q_y(i),q_z(i));
+%     end
+%     % 计算导弹目标接近速度
+%     kk(i) = -2*v_m/R(i);
+% end
 
 
 
@@ -84,7 +84,7 @@ R = [0.02^2 0;
 
 
 
-s=[q_y0;3;q_z0;3;];
+s=[q_y0;3;q_z0;-2;];
 % 初值
 x0 = s+sqrtm(Q)*randn(n,1);%初始化状态
 P0 =[0.1 0 0 0;
@@ -97,6 +97,18 @@ X = zeros(n,N);%真实状态
 Z = zeros(2,N);%测量值
 
 for i=1:N_scan
+%      通过实现角计算弹目距离
+    if i~=1
+        % 更新视线角
+        ele = X(1,i-1)+t*X(2,i-1);
+        azi = X(3,i-1)+t*X(4,i-1);
+        % 计算弹目距离
+        Rmt(i) =  fcn_sight_coor_2_range(X(1,i-1),X(3,i-1),Rmt(i-1),ele,azi);
+        
+    end
+    % 更新系数
+    kk(i) = -2*v_m/Rmt(i);
+    
     %状态方程
     f=@(x)[x(1)+x(2)*t;x(2)+t*(kk(i)*x(2)+x(2)*x(4)*tand(x(3)));...
         x(3)+t*x(4);x(4)+t*(-x(2)^2*sind(x(3))*cos(x(3))+kk(i)*x(4))];
@@ -136,14 +148,24 @@ for k=1:N_scan
     
         
 end
+
+yy1 = 3*ones(N);
+yy2 = -2*ones(N);
 figure('name','无迹卡尔曼滤波器估计视线角速度')
 plot(1:N_scan,Xukf)
 
 hold on 
-plot(1:N,X(1,:),'r');
+plot(1:N,yy1,'g--','LineWidth',2)
 hold on
-plot(1:N,X(3,:),'g');
+plot(1:N,yy2,'r--','LineWidth',2)
 legend({'俯仰视线角','俯仰视线角速度','方位视线角','方位视线角速度','俯仰视线角真值','方位视线角真值'},'Location','southwest')
+hold on
 
-figure('name','均方误差')
-plot(1:N,RMS)
+
+
+% 
+% figure('name','均方误差')
+% plot(1:N,RMS)
+
+
+
