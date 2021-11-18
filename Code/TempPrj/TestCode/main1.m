@@ -88,16 +88,20 @@ R = [0.02^2 0;
 
 s=[q_z0;3;q_y0;2;];
 % 初值
-x0 = s+sqrtm(Q)*randn(n,1);%初始化状态
+
 P0 =[0.1 0 0 0;
     0 0.1 0 0;
     0 0 0.1 0;
     0 0 0 0.1;];%初始化协方差
 N=N_scan;%总仿真时间步数，即总时间
 Xukf = zeros(n,N);%UKF滤波状态初始化
-X = zeros(n,N);%真实状态
+X = zeros(n,N);%状态值（用于计算测量值）
 Z = zeros(2,N);%测量值
+X1 = zeros(n,N);
+x0 = s+sqrtm(Q)*randn(n,1);%初始化状态
 X(:,1) = x0;
+X1(:,1) = s;
+s1 = s;
 
 for i=2:N_scan
 %      通过实现角计算弹目距离
@@ -120,7 +124,9 @@ for i=2:N_scan
 
     %x1为方位视线角，x2为方位视线角速度，x3为俯仰视线角、x4为俯仰视线角速度
     X(:,i) = f(s)+sqrtm(Q)*randn(4,1);%模拟，产生目标运动真实轨迹
+    X1(:,i) = f(s1);                  %不添加噪声项迭代计算
     s = X(:,i);
+    s1 = X1(:,i);
 end
 
 ux=x0;%ux为中间变量
@@ -159,17 +165,21 @@ figure('name','无迹卡尔曼滤波器估计视线角速度')
 plot(1:N_scan,Xukf)
 
 hold on 
-plot(1:N,X(:,1),'g--','LineWidth',2)
+plot(1:N,X1(1,:),'g--','LineWidth',2)
 hold on
-plot(1:N,X(:,3),'r--','LineWidth',2)
-legend({'方位视线角','方位视线角速度','俯仰视线角','视线角速度','方位视线角真值','俯仰视线角真值'},'Location','southwest')
+plot(1:N,X1(3,:),'r--','LineWidth',2)
+hold on 
+plot(1:N,X1(2,:),'b--','LineWidth',2)
 hold on
+plot(1:N,X1(4,:),'y--','LineWidth',2)
+legend({'方位视线角','方位视线角速度','俯仰视线角','视线角速度','方位视线角真值','俯仰视线角真值','方位视线角速度真值','俯仰视线角速度真值'},'Location','southwest')
 
 
 
 
-figure('name','均方误差')
-plot(1:N,RMS)
+
+% figure('name','均方误差')
+% plot(1:N,RMS)
 
 
 
