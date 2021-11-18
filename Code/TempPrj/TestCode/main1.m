@@ -104,13 +104,13 @@ X1(:,1) = s;
 s1 = s;
 
 for i=2:N_scan
-%      通过实现角计算弹目距离
+    %      通过实现角计算弹目距离
     if i~=1
         % 更新视线角
         ele = X(3,i-1)+t*X(4,i-1);
         azi = X(1,i-1)+t*X(2,i-1);
         % 计算弹目距离
-        Rmt(i) =  fcn_sight_coor_2_range(X(3,i-1),X(1,i-1),Rmt(i-1),ele,azi);        
+        Rmt(i) =  fcn_sight_coor_2_range(X(3,i-1),X(1,i-1),Rmt(i-1),ele,azi);
     end
     % 更新系数
     dR = Rmt(i) - Rmt(i-1);
@@ -121,7 +121,7 @@ for i=2:N_scan
     %状态方程
     f=@(x)[x(1)+x(2)*t;x(2)+t*(kk(i)*x(2)+2*x(2)*x(4)*tand(x(3)));...
         x(3)+t*x(4);x(4)+t*(-x(2)^2*sind(x(3))*cos(x(3))+kk(i)*x(4))];
-
+    
     %x1为方位视线角，x2为方位视线角速度，x3为俯仰视线角、x4为俯仰视线角速度
     X(:,i) = f(s)+sqrtm(Q)*randn(4,1);%模拟，产生目标运动真实轨迹
     X1(:,i) = f(s1);                  %不添加噪声项迭代计算
@@ -151,24 +151,23 @@ for k=1:N_scan
     %观测方程
     h=@(x)[atand((R33*sind(x(1))-R21*cosd(x(3))-R32*tand(x(3)))/(R11*cosd(x(1))+R12*tand(x(3))-R13*sind(x(1))));...
         asind(R21*cosd(x(3))*cosd(x(1))+R22*sind(x(3))-R23*sind(x(1))*cosd(x(3)));];
-            
+    
     Z(:,k)= h(X(:,k)) + sqrtm(R)*randn(2,1);%测量值，保存观测
     [Xukf(:,k), P0] = ukf(f,ux,P0,h,Z(:,k),Q,R);%调用ukf滤波算法
     ux=Xukf(:,k);
-    RMS(k)=sqrt((X(2,k)-Xukf(2,k))^2+(X(4,k)-Xukf(4,k))^2 );
+    RMS(k)=CalNorm2(X(:,k),Xukf(:,k));
     
-        
 end
 
 
 figure('name','无迹卡尔曼滤波器估计视线角速度')
 plot(1:N_scan,Xukf)
 
-hold on 
+hold on
 plot(1:N,X1(1,:),'g--','LineWidth',2)
 hold on
 plot(1:N,X1(3,:),'r--','LineWidth',2)
-hold on 
+hold on
 plot(1:N,X1(2,:),'b--','LineWidth',2)
 hold on
 plot(1:N,X1(4,:),'y--','LineWidth',2)
@@ -180,6 +179,26 @@ legend({'方位视线角','方位视线角速度','俯仰视线角','视线角速度','方位视线角真值'
 
 % figure('name','均方误差')
 % plot(1:N,RMS)
+
+
+%% 计算向量二范数
+function res = CalNorm2(X1,X2)
+
+[m,n] = size(X1);
+% 若传入向量为列向量，将其转换为行向量
+if m~=1&&n==1
+X1 = X1';
+X2 = X2';    
+end
+
+sum = 0;
+for i = 1:m*n
+    sum = sum + (X1(i)-X2(i))^2;
+end
+res = sqrt(sum)/(m*n);
+end
+
+
 
 
 
